@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-base:        #080a0c;
+    --bg-surface:     #0e1117;
+    --bg-elevated:    #141820;
+    --bg-hover:       #1a2030;
+    --border:         #1e2535;
+    --border-bright:  #2a3550;
+    --accent:         #22d3ee;
+    --accent-bright:  #67e8f9;
+    --accent-dim:     #0e7490;
+    --accent-glow:    rgba(34,211,238,0.15);
+    --text-primary:   #f0f4f8;
+    --text-secondary: #8896a8;
+    --text-muted:     #4a5568;
+    --positive:       #34d399;
+    --negative:       #f87171;
+    --user-bubble:    #1e3a4a;
+    --user-border:    #2a5070;
+    --user-text:      #cce8f4;
+  }
+
+  :root.light {
+    --bg-base:        #f0f4f8;
+    --bg-surface:     #ffffff;
+    --bg-elevated:    #e8edf5;
+    --bg-hover:       #dde4ef;
+    --border:         #d0d8e8;
+    --border-bright:  #b0bcd0;
+    --accent:         #0891b2;
+    --accent-bright:  #0e7490;
+    --accent-dim:     #67e8f9;
+    --accent-glow:    rgba(8,145,178,0.1);
+    --text-primary:   #0f172a;
+    --text-secondary: #475569;
+    --text-muted:     #94a3b8;
+    --positive:       #059669;
+    --negative:       #dc2626;
+    --user-bubble:    #e0f2fe;
+    --user-border:    #bae6fd;
+    --user-text:      #0c4a6e;
+  }
+
+  html, body, #root { height: 100%; width: 100%; overflow: hidden; }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s, color 0.3s;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
+
+  .glow-accent { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow); }
+  .glow-sm { box-shadow: 0 0 8px var(--accent-glow); }
+}
+
+/* Scrollbar visível no dashboard */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: var(--border-bright);
+  border-radius: 999px;
+}
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-dim);
+}

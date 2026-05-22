@@ -1,0 +1,15 @@
+# Backend
+fastapi
+uvicorn
+pydantic
+python-dotenv
+requests
+
+# Banco de dados
+sqlalchemy
+
+# Seed de dados
+faker
+
+# IA
+groq
