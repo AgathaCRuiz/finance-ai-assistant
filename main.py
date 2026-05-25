@@ -277,3 +277,51 @@ async def get_mercado(db: Session = Depends(get_db)):
 @app.get("/")
 async def root():
     return {"status": "online", "versao": "2.0.0", "agente": "Edu Finance"}
+
+
+# ── GET /evolucao ─────────────────────────────────────────────
+@app.get("/evolucao")
+async def get_evolucao(db: Session = Depends(get_db)):
+    """
+    Retorna evolução patrimonial dos últimos 12 meses.
+    Calcula receitas, gastos e saldo acumulado mês a mês.
+    """
+    usuario = db.query(Usuario).filter(Usuario.id == USUARIO_ID).first()
+    if not usuario:
+        return []
+
+    hoje = datetime.now()
+    patrimonio_base = usuario.patrimonio_total or 0
+    resultado = []
+
+    for i in range(11, -1, -1):
+        ref = hoje - timedelta(days=i * 30)
+        ini = ref.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        if ini.month == 12:
+            prox = ini.replace(year=ini.year + 1, month=1, day=1)
+        else:
+            prox = ini.replace(month=ini.month + 1, day=1)
+
+        ts = db.query(Transacao).filter(
+            Transacao.usuario_id == USUARIO_ID,
+            Transacao.data >= ini,
+            Transacao.data < prox,
+        ).all()
+
+        receita = sum(t.valor for t in ts if t.tipo == "entrada")
+        gastos  = sum(t.valor for t in ts if t.tipo == "saida")
+        saldo   = receita - gastos
+
+        # Simula crescimento patrimonial acumulado
+        fator = 1 + (0.008 * (12 - i))  # ~10% ao ano
+        patrimonio_mes = round(patrimonio_base * fator + saldo * (12 - i) * 0.5, 2)
+
+        resultado.append({
+            "mes":        ini.strftime("%b/%y"),
+            "patrimonio": patrimonio_mes,
+            "receita":    round(receita, 2),
+            "gastos":     round(gastos, 2),
+            "saldo":      round(saldo, 2),
+        })
+
+    return resultado

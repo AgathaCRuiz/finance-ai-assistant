@@ -47,9 +47,9 @@ export function MessageInput({ onSend, disabled = false }: MessageInputProps) {
           placeholder="Pergunte sobre suas finanças..."
           rows={1}
           style={{ color: "var(--text-primary)", caretColor: "var(--accent)" }}
-          className="flex-1 resize-none bg-transparent font-body text-sm outline-none leading-relaxed disabled:opacity-40"
-          // @ts-expect-error - placeholder color via CSS
-          placeholderStyle={{ color: "var(--text-muted)" }}
+          className="flex-1 resize-none bg-transparent font-body text-sm outline-none leading-relaxed disabled:opacity-40 placeholder:text-[var(--text-muted)]"
+          
+          
         />
         <motion.button
           onClick={handleSend}

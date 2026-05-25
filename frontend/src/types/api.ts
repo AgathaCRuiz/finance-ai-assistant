@@ -81,3 +81,11 @@ export interface AsyncState<T> {
   status: RequestStatus;
   error: string | null;
 }
+
+export interface EvolucaoMensal {
+  mes: string;
+  patrimonio: number;
+  receita: number;
+  gastos: number;
+  saldo: number;
+}

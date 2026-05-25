@@ -48,7 +48,7 @@ export function AllocationDonut({ gastos }: AllocationDonutProps) {
   return (
     <div
       style={{ background: "var(--bg-surface)", border: "1px solid var(--border)" }}
-      className="rounded-xl p-4 h-full flex flex-col"
+      className="rounded-xl p-4 flex flex-col"
     >
       <div className="flex items-center gap-2 mb-4">
         <div className="w-1 h-4 rounded-full" style={{ background: "#a78bfa" }} />
@@ -128,18 +128,18 @@ export function AllocationDonut({ gastos }: AllocationDonutProps) {
         </div>
 
         {/* Legenda */}
-        <div className="flex flex-col gap-1.5 flex-1 overflow-hidden">
+        <div className="flex flex-col gap-1 flex-1 min-w-0">
           {segments.map((s, i) => (
             <motion.div
               key={s.cat}
-              className="flex items-center gap-2 rounded-lg px-2 py-1 cursor-pointer transition-all duration-150"
+              className="flex items-center gap-2 rounded-lg px-2 py-1 cursor-pointer transition-all duration-150 mx-px"
               style={{
                 background: hovered === i ? `${s.color}12` : "transparent",
                 border: `1px solid ${hovered === i ? s.color + "30" : "transparent"}`,
               }}
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
-              whileHover={{ x: 2 }}
+              whileHover={{ scale: 1.01 }}
             >
               <div className="w-2 h-2 rounded-full flex-shrink-0 transition-all duration-150"
                 style={{

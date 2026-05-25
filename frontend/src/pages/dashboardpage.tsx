@@ -4,6 +4,7 @@ import { SpendingChart } from "@/components/dashboard/spendingchart";
 import { AllocationDonut } from "@/components/dashboard/allocationdonut";
 import { InsightsPanel } from "@/components/dashboard/insightspanel";
 import { GoalsProgress } from "@/components/dashboard/goalsprogress";
+import { PatrimonyChart } from "@/components/dashboard/patrimonychart";
 import { motion } from "framer-motion";
 
 export function DashboardPage() {
@@ -26,6 +27,7 @@ export function DashboardPage() {
         style={{ background: "radial-gradient(circle,rgba(139,92,246,.05),transparent 70%)", filter: "blur(40px)" }} />
 
       <div className="relative z-10 p-6 flex flex-col gap-5 max-w-7xl mx-auto w-full">
+
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between">
@@ -61,15 +63,22 @@ export function DashboardPage() {
           </div>
         )}
 
-        {/* Dados */}
+        {/* Conteúdo */}
         {status === "success" && data && (
           <>
+            {/* KPIs */}
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
               <KpiCards metricas={data.metricas} reserva={data.reserva} patrimonio={data.perfil.patrimonio_total} />
             </motion.div>
 
+            {/* Evolução Patrimonial */}
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+              <PatrimonyChart />
+            </motion.div>
+
+            {/* Gastos + Alocação */}
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-              className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+              className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-start">
               <div className="lg:col-span-3">
                 <SpendingChart
                   gastos={data.gastos_categoria}
@@ -82,8 +91,9 @@ export function DashboardPage() {
               </div>
             </motion.div>
 
+            {/* Insights + Metas */}
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
               <InsightsPanel data={data} />
               <GoalsProgress metas={data.metas} reserva={data.reserva} />
             </motion.div>

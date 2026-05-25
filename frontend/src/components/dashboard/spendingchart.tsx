@@ -39,8 +39,10 @@ export function SpendingChart({ gastos, metricas, historico }: SpendingChartProp
 
   return (
     <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border)" }}
-      className="rounded-xl p-4 h-full">
-      <div className="flex items-center justify-between mb-4">
+      className="rounded-xl p-4">
+
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className="w-1 h-4 rounded-full" style={{ background: "#22d3ee" }} />
           <span style={{ color: "var(--text-muted)" }} className="font-mono text-[9px] uppercase tracking-widest">
@@ -59,66 +61,70 @@ export function SpendingChart({ gastos, metricas, historico }: SpendingChartProp
         </div>
       </div>
 
-      <div className="flex items-end gap-2 h-32 relative">
-        {items.map((item, i) => {
-          const isLast = i === items.length - 1;
-          const isHov  = hovered === i;
-          return (
-            <div key={item.label}
-              className="flex flex-col items-center gap-1.5 flex-1 h-full justify-end relative"
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-            >
-              {/* Tooltip */}
-              <AnimatePresence>
-                {isHov && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 4, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute bottom-full mb-2 z-50 pointer-events-none"
-                    style={{
-                      background: "var(--bg-elevated)",
-                      border: "1px solid var(--border-bright)",
-                      borderRadius: 10,
-                      padding: "8px 10px",
-                      minWidth: 120,
-                      boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                    }}
-                  >
-                    <div className="absolute top-0 left-3 right-3 h-[1px] rounded-full"
-                      style={{ background: "linear-gradient(90deg,transparent,#22d3ee,transparent)", opacity: 0.4 }} />
-                    <p style={{ color: "var(--text-muted)" }} className="font-mono text-[9px] uppercase tracking-widest mb-1">
-                      {item.label}
-                    </p>
-                    <p style={{ color: "#22d3ee" }} className="font-mono text-sm font-bold">
-                      {fmtFull(item.valor)}
-                    </p>
-                    {item.receita > 0 && (
-                      <>
-                        <p style={{ color: "var(--text-muted)", borderTop: "1px solid var(--border)" }}
-                          className="font-mono text-[9px] mt-1.5 pt-1.5">
-                          Receita: {fmt(item.receita)}
-                        </p>
-                        <p style={{ color: item.receita > item.valor ? "#34d399" : "#f87171" }}
-                          className="font-mono text-[9px]">
-                          Saldo: {fmt(item.receita - item.valor)}
-                        </p>
-                      </>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+      {/* Barras — altura fixa, alinhadas na base */}
+      <div className="relative" style={{ height: 180 }}>
+        <div className="absolute inset-0 flex items-end gap-2 pb-6">
+          {items.map((item, i) => {
+            const isLast = i === items.length - 1;
+            const isHov  = hovered === i;
+            const pct    = (item.valor / maxVal) * 100;
 
-              <div className="relative w-full flex items-end" style={{ height: "80%" }}>
+            return (
+              <div
+                key={item.label}
+                className="flex flex-col items-center flex-1 justify-end relative h-full"
+                onMouseEnter={() => setHovered(i)}
+                onMouseLeave={() => setHovered(null)}
+              >
+                {/* Tooltip */}
+                <AnimatePresence>
+                  {isHov && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute bottom-full mb-1 z-50 pointer-events-none"
+                      style={{
+                        background: "var(--bg-elevated)",
+                        border: "1px solid var(--border-bright)",
+                        borderRadius: 10,
+                        padding: "8px 10px",
+                        minWidth: 110,
+                        boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <p style={{ color: "var(--text-muted)" }} className="font-mono text-[9px] uppercase tracking-widest mb-1">
+                        {item.label}
+                      </p>
+                      <p style={{ color: "#22d3ee" }} className="font-mono text-sm font-bold">
+                        {fmtFull(item.valor)}
+                      </p>
+                      {item.receita > 0 && (
+                        <>
+                          <p style={{ color: "var(--text-muted)", borderTop: "1px solid var(--border)" }}
+                            className="font-mono text-[9px] mt-1.5 pt-1.5">
+                            Receita: {fmt(item.receita)}
+                          </p>
+                          <p style={{ color: item.receita > item.valor ? "#34d399" : "#f87171" }}
+                            className="font-mono text-[9px]">
+                            Saldo: {fmt(item.receita - item.valor)}
+                          </p>
+                        </>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Barra */}
                 <div
                   ref={el => { barRefs.current[i] = el; }}
                   className="w-full rounded-t-md transition-all duration-700"
                   style={{
-                    height: "0%",
+                    height: `${pct}%`,
                     background: isHov
                       ? "linear-gradient(180deg,#67e8f9,#22d3ee)"
                       : isLast
@@ -126,19 +132,31 @@ export function SpendingChart({ gastos, metricas, historico }: SpendingChartProp
                         : `linear-gradient(180deg,rgba(34,211,238,${0.5 - i * 0.06}),rgba(14,116,144,${0.3 - i * 0.03}))`,
                     boxShadow: isHov ? "0 0 16px rgba(34,211,238,0.4)" : isLast ? "0 0 12px rgba(34,211,238,0.3)" : "none",
                     cursor: "pointer",
+                    minHeight: 4,
                   }}
                 />
               </div>
-              <span style={{ color: isHov ? "var(--text-primary)" : "var(--text-muted)" }}
-                className="font-mono text-[9px] truncate max-w-full text-center transition-colors">
+            );
+          })}
+        </div>
+
+        {/* Labels na base */}
+        <div className="absolute bottom-0 left-0 right-0 flex gap-2" style={{ height: 20 }}>
+          {items.map((item, i) => (
+            <div key={item.label} className="flex-1 flex items-center justify-center">
+              <span
+                style={{ color: hovered === i ? "var(--text-primary)" : "var(--text-muted)", fontSize: 9 }}
+                className="font-mono truncate text-center transition-colors"
+              >
                 {item.label}
               </span>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
-      <div className="mt-3 pt-3" style={{ borderTop: "1px solid var(--border)" }}>
+      {/* Footer */}
+      <div className="mt-2 pt-2" style={{ borderTop: "1px solid var(--border)" }}>
         <div className="flex justify-between">
           <span style={{ color: "var(--text-muted)" }} className="font-mono text-[9px]">
             Receita: {fmt(metricas.total_receita)}

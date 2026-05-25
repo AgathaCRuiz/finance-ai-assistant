@@ -1,4 +1,4 @@
-import { useState, useRef, type ReactNode } from "react";
+import { useState, useRef, type ReactNode, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface TooltipProps {
@@ -9,49 +9,109 @@ interface TooltipProps {
 
 export function Tooltip({ children, content, side = "top" }: TooltipProps) {
   const [visible, setVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [pos, setPos]         = useState({ top: "auto", bottom: "auto", left: "auto", right: "auto", transform: "" });
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
 
-  const positions = {
-    top:    "bottom-full left-1/2 -translate-x-1/2 mb-2",
-    bottom: "top-full left-1/2 -translate-x-1/2 mt-2",
-    left:   "right-full top-1/2 -translate-y-1/2 mr-2",
-    right:  "left-full top-1/2 -translate-y-1/2 ml-2",
-  };
+  useEffect(() => {
+    if (!visible || !triggerRef.current || !tooltipRef.current) return;
+
+    const trigger  = triggerRef.current.getBoundingClientRect();
+    const tooltip  = tooltipRef.current.getBoundingClientRect();
+    const vw       = window.innerWidth;
+    const vh       = window.innerHeight;
+    const gap       = 8;
+
+    let top = "auto", bottom = "auto", left = "auto", right = "auto", transform = "";
+
+    // Posição base
+    if (side === "top" || side === "bottom") {
+      // Centralizado horizontalmente
+      let lVal = trigger.left + trigger.width / 2 - tooltip.width / 2;
+      // Clamp para não sair da tela
+      lVal = Math.max(8, Math.min(lVal, vw - tooltip.width - 8));
+      left = `${lVal}px`;
+
+      if (side === "top") {
+        // Tenta cima, se não couber vai pra baixo
+        if (trigger.top - tooltip.height - gap > 0) {
+          bottom = `${vh - trigger.top + gap}px`;
+        } else {
+          top = `${trigger.bottom + gap}px`;
+        }
+      } else {
+        if (trigger.bottom + tooltip.height + gap < vh) {
+          top = `${trigger.bottom + gap}px`;
+        } else {
+          bottom = `${vh - trigger.top + gap}px`;
+        }
+      }
+    }
+
+    if (side === "right" || side === "left") {
+      let tVal = trigger.top + trigger.height / 2 - tooltip.height / 2;
+      tVal = Math.max(8, Math.min(tVal, vh - tooltip.height - 8));
+      top = `${tVal}px`;
+
+      if (side === "right") {
+        if (trigger.right + tooltip.width + gap < vw) {
+          left = `${trigger.right + gap}px`;
+        } else {
+          right = `${vw - trigger.left + gap}px`;
+        }
+      } else {
+        if (trigger.left - tooltip.width - gap > 0) {
+          right = `${vw - trigger.left + gap}px`;
+        } else {
+          left = `${trigger.right + gap}px`;
+        }
+      }
+    }
+
+    setPos({ top, bottom, left, right, transform });
+  }, [visible, side]);
 
   return (
-    <div ref={ref} className="relative inline-flex"
-      onMouseEnter={() => setVisible(true)}
-      onMouseLeave={() => setVisible(false)}
-    >
-      {children}
+    <>
+      <div ref={triggerRef} className="relative inline-flex w-full"
+        onMouseEnter={() => setVisible(true)}
+        onMouseLeave={() => setVisible(false)}
+      >
+        {children}
+      </div>
+
       <AnimatePresence>
         {visible && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: side === "top" ? 4 : -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92 }}
+            ref={tooltipRef}
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.94 }}
             transition={{ duration: 0.15 }}
-            className={`absolute z-50 pointer-events-none w-max max-w-[220px] ${positions[side]}`}
+            className="fixed z-[9999] pointer-events-none w-max max-w-[240px]"
             style={{
+              top: pos.top,
+              bottom: pos.bottom,
+              left: pos.left,
+              right: pos.right,
+              transform: pos.transform,
               background: "var(--bg-elevated)",
               border: "1px solid var(--border-bright)",
               borderRadius: "10px",
               padding: "10px 12px",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(34,211,238,0.08)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(34,211,238,0.06)",
             }}
           >
-            {/* Linha de destaque no topo */}
             <div className="absolute top-0 left-3 right-3 h-[1px] rounded-full"
               style={{ background: "linear-gradient(90deg,transparent,var(--accent),transparent)", opacity: 0.4 }} />
             {content}
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 }
 
-// Conteúdo padrão de tooltip para KPIs
 interface KpiTooltipContentProps {
   label: string;
   value: string;
