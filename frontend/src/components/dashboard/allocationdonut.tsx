@@ -20,9 +20,6 @@ function fmt(v: number) {
     style: "currency", currency: "BRL", notation: "compact", maximumFractionDigits: 1,
   }).format(v);
 }
-function fmtFull(v: number) {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
-}
 
 export function AllocationDonut({ gastos }: AllocationDonutProps) {
   const [hovered, setHovered] = useState<number | null>(null);

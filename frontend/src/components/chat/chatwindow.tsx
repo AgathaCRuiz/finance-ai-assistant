@@ -6,7 +6,7 @@ import { WelcomeScreen } from "./welcomescreen";
 interface ChatWindowProps { investorName?: string; }
 
 export function ChatWindow({ investorName }: ChatWindowProps) {
-  const { messages, isLoading, isStreaming, sendMessage, activeSession } = useChat();
+  const { messages, isLoading, isStreaming, sendMessage } = useChat();
 
   return (
     <div style={{ background: "var(--bg-base)" }} className="flex flex-col h-full">

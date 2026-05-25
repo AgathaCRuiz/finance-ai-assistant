@@ -1,6 +1,8 @@
 import type { DadosResponse, EvolucaoMensal } from "@/types/api";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+const BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://finance-ai-assistant-production-bcea.up.railway.app";
 
 export async function fetchDados(): Promise<DadosResponse> {
   const res = await fetch(`${BASE_URL}/dados`);
