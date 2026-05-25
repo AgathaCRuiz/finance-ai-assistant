@@ -5,7 +5,6 @@ import {
 } from "recharts";
 import { motion } from "framer-motion";
 import { useEvolucao } from "@/hooks/useevolucao";
-import type { EvolucaoMensal } from "@/types/api";
 
 type View = "patrimonio" | "saldo" | "receita_gastos";
 
