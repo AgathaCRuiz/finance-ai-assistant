@@ -30,7 +30,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://localhost:3000",
-        "https://finance-ai-assistant-iefhrm591-agatha-ruiz-s-projects.vercel.app",
+        "https://finance-ai-assistant-kohl.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -330,3 +330,103 @@ async def get_evolucao(db: Session = Depends(get_db)):
         })
 
     return resultado
+
+
+# ── GET /perfil ───────────────────────────────────────────────
+@app.get("/perfil")
+async def get_perfil(db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter(Usuario.id == USUARIO_ID).first()
+    if not usuario:
+        return {"erro": "Usuário não encontrado"}
+    metas = db.query(Meta).filter(Meta.usuario_id == USUARIO_ID).all()
+    return {
+        "id":                  usuario.id,
+        "nome":                usuario.nome,
+        "email":               usuario.email,
+        "idade":               usuario.idade,
+        "perfil_investidor":   usuario.perfil_investidor,
+        "objetivo_principal":  usuario.objetivo_principal,
+        "renda_mensal":        usuario.renda_mensal,
+        "patrimonio_total":    usuario.patrimonio_total,
+        "reserva_emergencia":  usuario.reserva_emergencia,
+        "reserva_necessaria":  usuario.reserva_necessaria,
+        "metas": [
+            {
+                "id":               m.id,
+                "titulo":           m.titulo,
+                "valor_necessario": m.valor_necessario,
+                "valor_atual":      m.valor_atual,
+                "prazo":            m.prazo,
+                "status":           m.status,
+            }
+            for m in metas
+        ],
+    }
+
+
+# ── PUT /perfil ───────────────────────────────────────────────
+class PerfilUpdate(BaseModel):
+    nome:               str | None = None
+    email:              str | None = None
+    idade:              int | None = None
+    perfil_investidor:  str | None = None
+    objetivo_principal: str | None = None
+    renda_mensal:       float | None = None
+    patrimonio_total:   float | None = None
+    reserva_emergencia: float | None = None
+    reserva_necessaria: float | None = None
+
+@app.put("/perfil")
+async def update_perfil(body: PerfilUpdate, db: Session = Depends(get_db)):
+    usuario = db.query(Usuario).filter(Usuario.id == USUARIO_ID).first()
+    if not usuario:
+        return {"erro": "Usuário não encontrado"}
+    for field, value in body.model_dump(exclude_none=True).items():
+        setattr(usuario, field, value)
+    db.commit()
+    return {"ok": True}
+
+
+# ── POST /perfil/metas ────────────────────────────────────────
+class MetaCreate(BaseModel):
+    titulo:           str
+    valor_necessario: float
+    valor_atual:      float = 0
+    prazo:            str
+
+@app.post("/perfil/metas")
+async def create_meta(body: MetaCreate, db: Session = Depends(get_db)):
+    meta = Meta(usuario_id=USUARIO_ID, **body.model_dump())
+    db.add(meta)
+    db.commit()
+    db.refresh(meta)
+    return {"id": meta.id, "ok": True}
+
+
+# ── PUT /perfil/metas/{id} ────────────────────────────────────
+class MetaUpdate(BaseModel):
+    titulo:           str | None = None
+    valor_necessario: float | None = None
+    valor_atual:      float | None = None
+    prazo:            str | None = None
+    status:           str | None = None
+
+@app.put("/perfil/metas/{meta_id}")
+async def update_meta(meta_id: int, body: MetaUpdate, db: Session = Depends(get_db)):
+    meta = db.query(Meta).filter(Meta.id == meta_id, Meta.usuario_id == USUARIO_ID).first()
+    if not meta:
+        return {"erro": "Meta não encontrada"}
+    for field, value in body.model_dump(exclude_none=True).items():
+        setattr(meta, field, value)
+    db.commit()
+    return {"ok": True}
+
+
+# ── DELETE /perfil/metas/{id} ─────────────────────────────────
+@app.delete("/perfil/metas/{meta_id}")
+async def delete_meta(meta_id: int, db: Session = Depends(get_db)):
+    meta = db.query(Meta).filter(Meta.id == meta_id, Meta.usuario_id == USUARIO_ID).first()
+    if meta:
+        db.delete(meta)
+        db.commit()
+    return {"ok": True}

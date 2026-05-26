@@ -89,3 +89,40 @@ export interface EvolucaoMensal {
   gastos: number;
   saldo: number;
 }
+
+// ── Perfil editável ─────────────────────────────────────────
+
+export interface MetaCompleta {
+  id: number;
+  titulo: string;
+  valor_necessario: number;
+  valor_atual: number;
+  prazo: string;
+  status: string;
+}
+
+export interface PerfilCompleto {
+  id: number;
+  nome: string;
+  email: string;
+  idade: number;
+  perfil_investidor: string;
+  objetivo_principal: string;
+  renda_mensal: number;
+  patrimonio_total: number;
+  reserva_emergencia: number;
+  reserva_necessaria: number;
+  metas: MetaCompleta[];
+}
+
+export interface PerfilUpdatePayload {
+  nome?: string;
+  email?: string;
+  idade?: number;
+  perfil_investidor?: string;
+  objetivo_principal?: string;
+  renda_mensal?: number;
+  patrimonio_total?: number;
+  reserva_emergencia?: number;
+  reserva_necessaria?: number;
+}

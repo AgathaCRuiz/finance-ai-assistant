@@ -8,16 +8,18 @@ import { GoalsList } from "@/components/investor/goalslist";
 
 interface SidebarProps {
   onDashboard?: () => void;
+  onProfile?: () => void;
   isDashboard?: boolean;
+  isProfile?: boolean;
   width?: number;
 }
 
 const COLLAPSE_THRESHOLD = 200;
-const PANEL_OPEN_KEY = "sidebar-panel-open";
-const PANEL_HEIGHT_KEY = "sidebar-panel-height";
-const DEFAULT_PANEL_PCT = 40;
-const MIN_PANEL_PCT = 15;
-const MAX_PANEL_PCT = 80;
+const PANEL_OPEN_KEY     = "sidebar-panel-open";
+const PANEL_HEIGHT_KEY   = "sidebar-panel-height";
+const DEFAULT_PANEL_PCT  = 40;
+const MIN_PANEL_PCT      = 15;
+const MAX_PANEL_PCT      = 80;
 
 function timeAgo(ts: number): string {
   const d = Date.now() - ts;
@@ -25,7 +27,7 @@ function timeAgo(ts: number): string {
   if (m < 1) return "agora"; if (m < 60) return `${m}m`; if (h < 24) return `${h}h`; return `${day}d`;
 }
 
-export function Sidebar({ onDashboard, isDashboard, width = 256 }: SidebarProps) {
+export function Sidebar({ onDashboard, onProfile, isDashboard, isProfile, width = 256 }: SidebarProps) {
   const { data, status, error } = useInvestorProfile();
   const { sessions, activeSession, newChat, switchSession, deleteSession } = useChat();
   const isCompact = width < COLLAPSE_THRESHOLD;
@@ -41,20 +43,17 @@ export function Sidebar({ onDashboard, isDashboard, width = 256 }: SidebarProps)
   });
 
   const [isDragging, setIsDragging] = useState(false);
-  const asideRef = useRef<HTMLElement>(null);
-  const dragStartY = useRef(0);
-  const dragStartPct = useRef(0);
+  const asideRef       = useRef<HTMLElement>(null);
+  const dragStartY     = useRef(0);
+  const dragStartPct   = useRef(0);
 
   const togglePanel = () => {
-    setPanelOpen(v => {
-      localStorage.setItem(PANEL_OPEN_KEY, String(!v));
-      return !v;
-    });
+    setPanelOpen(v => { localStorage.setItem(PANEL_OPEN_KEY, String(!v)); return !v; });
   };
 
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
-    dragStartY.current = e.clientY;
+    dragStartY.current   = e.clientY;
     dragStartPct.current = panelPct;
     setIsDragging(true);
   }, [panelPct]);
@@ -63,10 +62,10 @@ export function Sidebar({ onDashboard, isDashboard, width = 256 }: SidebarProps)
     if (!isDragging) return;
     const onMove = (e: MouseEvent) => {
       if (!asideRef.current) return;
-      const totalH = asideRef.current.getBoundingClientRect().height;
-      const deltaY = e.clientY - dragStartY.current;
+      const totalH   = asideRef.current.getBoundingClientRect().height;
+      const deltaY   = e.clientY - dragStartY.current;
       const deltaPct = (deltaY / totalH) * 100;
-      const next = Math.min(MAX_PANEL_PCT, Math.max(MIN_PANEL_PCT, dragStartPct.current - deltaPct));
+      const next     = Math.min(MAX_PANEL_PCT, Math.max(MIN_PANEL_PCT, dragStartPct.current - deltaPct));
       setPanelPct(next);
     };
     const onUp = () => {
@@ -75,10 +74,7 @@ export function Sidebar({ onDashboard, isDashboard, width = 256 }: SidebarProps)
     };
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-    };
+    return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); };
   }, [isDragging]);
 
   const onDoubleClick = useCallback(() => {
@@ -106,7 +102,9 @@ export function Sidebar({ onDashboard, isDashboard, width = 256 }: SidebarProps)
             </span>
           )}
         </div>
+
         <div className="flex items-center gap-1.5 flex-shrink-0">
+          {/* Dashboard */}
           <motion.button whileTap={{ scale: 0.9 }} onClick={onDashboard}
             style={{ background: isDashboard ? "var(--accent-glow)" : "var(--bg-elevated)", border: `1px solid ${isDashboard ? "var(--accent-dim)" : "var(--border)"}` }}
             className="w-7 h-7 rounded-lg flex items-center justify-center hover:border-[var(--border-bright)] transition-colors" title="Dashboard">
@@ -117,6 +115,8 @@ export function Sidebar({ onDashboard, isDashboard, width = 256 }: SidebarProps)
               <rect x="6.5" y="6.5" width="4" height="4" rx="1" stroke="var(--accent)" strokeWidth="1"/>
             </svg>
           </motion.button>
+
+          {/* Novo chat */}
           <motion.button whileTap={{ scale: 0.9 }} onClick={newChat}
             style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
             className="w-7 h-7 rounded-lg flex items-center justify-center hover:border-[var(--border-bright)] transition-colors" title="Nova conversa">
@@ -174,7 +174,7 @@ export function Sidebar({ onDashboard, isDashboard, width = 256 }: SidebarProps)
         )}
       </div>
 
-      {/* ── DRAG HANDLE — só quando painel aberto ── */}
+      {/* Drag handle */}
       <AnimatePresence>
         {panelOpen && (
           <motion.div
@@ -194,35 +194,46 @@ export function Sidebar({ onDashboard, isDashboard, width = 256 }: SidebarProps)
         )}
       </AnimatePresence>
 
-      {/* ── PAINEL INFERIOR ── */}
-      {/* Trigger sempre visível */}
+      {/* Painel inferior — trigger */}
       <div style={{ borderTop: "1px solid var(--border)" }} className="flex-shrink-0">
         {status === "success" && data && (
-          <button onClick={togglePanel}
-            className="w-full flex items-center gap-3 px-4 py-3 group hover:bg-[var(--bg-hover)] transition-colors">
-            <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-bright)", boxShadow: "0 0 12px var(--accent-glow)", flexShrink: 0 }}
-              className="w-10 h-10 rounded-xl flex items-center justify-center">
-              <span style={{ color: "var(--accent)" }} className="font-display text-sm font-bold">
-                {data.perfil.nome.split(" ").slice(0, 2).map((n: string) => n[0]).join("")}
-              </span>
-            </div>
-            {!isCompact && (
-              <div className="flex-1 text-left min-w-0">
-                <p style={{ color: "var(--text-primary)" }} className="font-display text-sm font-semibold leading-tight truncate">{data.perfil.nome}</p>
-                <span style={{ color: "var(--accent)", background: "var(--accent-glow)", border: "1px solid var(--accent-dim)" }}
-                  className="font-mono text-[9px] rounded px-1.5 py-0.5 inline-block mt-0.5">
-                  {data.perfil.perfil_investidor.toUpperCase()}
+          <div className="flex items-center">
+            {/* Clica no avatar/nome → abre perfil */}
+            <button onClick={onProfile}
+              className="flex-1 flex items-center gap-3 px-4 py-3 hover:bg-[var(--bg-hover)] transition-colors group"
+              title="Editar perfil"
+            >
+              <div style={{ background: isProfile ? "var(--accent)" : "var(--bg-elevated)", border: `1px solid ${isProfile ? "var(--accent)" : "var(--border-bright)"}`, boxShadow: "0 0 12px var(--accent-glow)", flexShrink: 0 }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all">
+                <span style={{ color: isProfile ? "#000" : "var(--accent)" }} className="font-display text-sm font-bold">
+                  {data.perfil.nome.split(" ").slice(0, 2).map((n: string) => n[0]).join("")}
                 </span>
               </div>
-            )}
-            <motion.div animate={{ rotate: panelOpen ? 180 : 0 }} transition={{ duration: 0.22 }}
-              style={{ color: "var(--text-muted)" }}
-              className="flex-shrink-0 opacity-40 group-hover:opacity-80 transition-opacity">
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                <path d="M2 4l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </motion.div>
-          </button>
+              {!isCompact && (
+                <div className="flex-1 text-left min-w-0">
+                  <p style={{ color: "var(--text-primary)" }} className="font-display text-sm font-semibold leading-tight truncate">
+                    {data.perfil.nome}
+                  </p>
+                  <span style={{ color: "var(--accent)", background: "var(--accent-glow)", border: "1px solid var(--accent-dim)" }}
+                    className="font-mono text-[9px] rounded px-1.5 py-0.5 inline-block mt-0.5">
+                    {data.perfil.perfil_investidor.toUpperCase()}
+                  </span>
+                </div>
+              )}
+            </button>
+
+            {/* Botão de colapsar painel */}
+            <button onClick={togglePanel}
+              className="px-3 py-3 hover:bg-[var(--bg-hover)] transition-colors flex-shrink-0"
+              style={{ borderLeft: "1px solid var(--border)" }}>
+              <motion.div animate={{ rotate: panelOpen ? 180 : 0 }} transition={{ duration: 0.22 }}
+                style={{ color: "var(--text-muted)" }} className="opacity-40 hover:opacity-80 transition-opacity">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <path d="M2 4l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </motion.div>
+            </button>
+          </div>
         )}
         {status === "loading" && (
           <div className="flex flex-col gap-3 px-4 py-4">
@@ -238,7 +249,7 @@ export function Sidebar({ onDashboard, isDashboard, width = 256 }: SidebarProps)
         )}
       </div>
 
-      {/* Conteúdo colapsável — altura controlada por panelPct */}
+      {/* Painel colapsável com dados do investidor */}
       <AnimatePresence initial={false}>
         {panelOpen && status === "success" && data && (
           <motion.div
@@ -249,8 +260,7 @@ export function Sidebar({ onDashboard, isDashboard, width = 256 }: SidebarProps)
             transition={{ duration: 0.25, ease: "easeInOut" }}
             style={{ overflow: "hidden", flexShrink: 0 }}
           >
-            <div className="overflow-y-auto scrollbar-thin h-full"
-              style={{ borderTop: "1px solid var(--border)" }}>
+            <div className="overflow-y-auto scrollbar-thin h-full" style={{ borderTop: "1px solid var(--border)" }}>
               <InvestorCard perfil={data.perfil} metricas={data.metricas} reserva={data.reserva} />
               <PortfolioSummary gastos={data.gastos_categoria} />
               <GoalsList metas={data.metas} />

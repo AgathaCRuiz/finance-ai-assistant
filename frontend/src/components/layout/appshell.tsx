@@ -6,6 +6,7 @@ import { Header } from "./header";
 import { MobileDrawer } from "./mobiledrawer";
 import { ChatWindow } from "@/components/chat/chatwindow";
 import { DashboardPage } from "@/pages/dashboardpage";
+import { ProfilePage } from "@/pages/profilepage";
 import { useInvestorProfile } from "@/hooks/useinvestorprofile";
 import { useChatStore } from "@/store/chatStore";
 
@@ -21,7 +22,8 @@ export function AppShell() {
   const isStreaming = useChatStore((s) => s.isStreaming);
   const navigate = useNavigate();
   const location = useLocation();
-  const isDash = location.pathname === "/dashboard";
+  const isDash    = location.pathname === "/dashboard";
+  const isProfile = location.pathname === "/perfil";
 
   const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -75,17 +77,15 @@ export function AppShell() {
     localStorage.setItem(STORAGE_KEY, String(DEFAULT_WIDTH));
   }, []);
 
-  function toggleDashboard() {
-    navigate(isDash ? "/" : "/dashboard");
-  }
+  function toggleDashboard() { navigate(isDash ? "/" : "/dashboard"); }
+  function toggleProfile()   { navigate(isProfile ? "/" : "/perfil"); }
 
   return (
     <div
       style={{ background: "var(--bg-base)", userSelect: isDragging ? "none" : "auto" }}
       className="flex h-screen w-screen overflow-hidden relative"
     >
-      {/* ── SIDEBAR FLUTUANTE DESKTOP ── */}
-      {/* Usa width animado no próprio motion.div — assim encolhe quando o painel colapsa */}
+      {/* Sidebar flutuante desktop */}
       <AnimatePresence initial={false}>
         {sidebarOpen && (
           <motion.div
@@ -114,17 +114,16 @@ export function AppShell() {
                 transition: "width 0.25s ease",
               }}
             >
-              {/* Brilho no topo */}
               <div className="absolute top-0 left-0 right-0 h-[1px] z-10 pointer-events-none"
                 style={{ background: "linear-gradient(90deg,transparent,rgba(34,211,238,0.3),transparent)", borderRadius: "18px 18px 0 0" }} />
-              {/* Brilho na direita */}
               <div className="absolute top-0 right-0 bottom-0 w-[1px] z-10 pointer-events-none"
                 style={{ background: "linear-gradient(180deg,transparent,rgba(34,211,238,0.12),transparent)" }} />
-
               <div className="flex-1 overflow-hidden flex flex-col" style={{ borderRadius: 18 }}>
                 <Sidebar
                   onDashboard={toggleDashboard}
+                  onProfile={toggleProfile}
                   isDashboard={isDash}
+                  isProfile={isProfile}
                   width={sidebarWidth}
                 />
               </div>
@@ -133,7 +132,7 @@ export function AppShell() {
         )}
       </AnimatePresence>
 
-      {/* Espaçador — acompanha a largura real do sidebar + gap */}
+      {/* Espaçador */}
       <motion.div
         className="hidden md:block flex-shrink-0"
         animate={{ width: sidebarOpen ? sidebarWidth + GAP * 2 + 6 : 0 }}
@@ -171,16 +170,19 @@ export function AppShell() {
           investorName={data?.perfil.nome}
           isStreaming={isStreaming}
           isDashboard={isDash}
+          isProfile={isProfile}
           onToggleDashboard={toggleDashboard}
+          onToggleProfile={toggleProfile}
           sidebarOpen={sidebarOpen}
           onToggleSidebar={toggleSidebar}
           mobileDrawerOpen={mobileDrawerOpen}
           onToggleMobileDrawer={() => setMobileDrawerOpen(prev => !prev)}
         />
-        <main className={`flex-1 min-h-0 ${isDash ? "overflow-y-auto scrollbar-thin" : "overflow-hidden"}`}>
+        <main className={`flex-1 min-h-0 ${isDash || isProfile ? "overflow-y-auto scrollbar-thin" : "overflow-hidden"}`}>
           <Routes>
-            <Route path="/" element={<ChatWindow investorName={data?.perfil.nome} />} />
+            <Route path="/"          element={<ChatWindow investorName={data?.perfil.nome} />} />
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/perfil"    element={<ProfilePage />} />
           </Routes>
         </main>
       </div>
