@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useInvestorProfile } from "@/hooks/useinvestorprofile";
 import { KpiCards } from "@/components/dashboard/kpicards";
 import { SpendingChart } from "@/components/dashboard/spendingchart";
@@ -5,10 +6,13 @@ import { AllocationDonut } from "@/components/dashboard/allocationdonut";
 import { InsightsPanel } from "@/components/dashboard/insightspanel";
 import { GoalsProgress } from "@/components/dashboard/goalsprogress";
 import { PatrimonyChart } from "@/components/dashboard/patrimonychart";
-import { motion } from "framer-motion";
+import { AlertsBanner } from "@/components/dashboard/alertsbanner";
+import { PeriodFilter, type Period } from "@/components/dashboard/periodfilter";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function DashboardPage() {
-  const { data, status, error } = useInvestorProfile();
+  const [period, setPeriod] = useState<Period>("1m");
+  const { data, status, error } = useInvestorProfile(period);
 
   return (
     <div style={{ background: "var(--bg-base)", minHeight: "100%" }}
@@ -30,30 +34,44 @@ export function DashboardPage() {
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between">
+          className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 style={{ color: "var(--text-primary)" }} className="font-display text-xl font-semibold tracking-tight">
               Dashboard Financeiro
             </h1>
             <p style={{ color: "var(--text-muted)" }} className="font-mono text-xs mt-0.5">
-              {data?.perfil.nome ?? "—"} · {data?.metricas.mes_referencia ?? "dados em tempo real"}
+              {data?.perfil.nome ?? "—"} · {data?.metricas.mes_referencia ?? "carregando..."}
             </p>
           </div>
-          <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#22d3ee] animate-pulse" />
-            <span style={{ color: "#22d3ee" }} className="font-mono text-[10px] tracking-widest">LIVE</span>
+          <div className="flex items-center gap-3">
+            {/* Filtro de período */}
+            <PeriodFilter value={period} onChange={setPeriod} />
+            <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full">
+              <AnimatePresence mode="wait">
+                {status === "loading" ? (
+                  <motion.span key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] animate-pulse" />
+                ) : (
+                  <motion.span key="live" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="w-1.5 h-1.5 rounded-full bg-[#22d3ee] animate-pulse" />
+                )}
+              </AnimatePresence>
+              <span style={{ color: "#22d3ee" }} className="font-mono text-[10px] tracking-widest">
+                {status === "loading" ? "..." : "LIVE"}
+              </span>
+            </div>
           </div>
         </motion.div>
 
-        {/* Loading */}
+        {/* Loading skeleton */}
         {status === "loading" && (
-          <div className="grid grid-cols-4 gap-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-4 gap-4">
             {[1,2,3,4].map(i => (
               <div key={i} style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
                 className="h-24 rounded-xl animate-pulse" />
             ))}
-          </div>
+          </motion.div>
         )}
 
         {/* Erro */}
@@ -66,6 +84,11 @@ export function DashboardPage() {
         {/* Conteúdo */}
         {status === "success" && data && (
           <>
+            {/* Alertas inteligentes */}
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+              <AlertsBanner data={data} />
+            </motion.div>
+
             {/* KPIs */}
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
               <KpiCards metricas={data.metricas} reserva={data.reserva} patrimonio={data.perfil.patrimonio_total} />
@@ -92,7 +115,7 @@ export function DashboardPage() {
             </motion.div>
 
             {/* Insights + Metas */}
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
               <InsightsPanel data={data} />
               <GoalsProgress metas={data.metas} reserva={data.reserva} />

@@ -1,11 +1,9 @@
 import type { DadosResponse, EvolucaoMensal } from "@/types/api";
 
-const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  "https://finance-ai-assistant-production-bcea.up.railway.app";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
-export async function fetchDados(): Promise<DadosResponse> {
-  const res = await fetch(`${BASE_URL}/dados`);
+export async function fetchDados(periodo = "1m"): Promise<DadosResponse> {
+  const res = await fetch(`${BASE_URL}/dados?periodo=${periodo}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json() as Promise<DadosResponse>;
 }

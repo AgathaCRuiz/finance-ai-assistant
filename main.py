@@ -27,12 +27,7 @@ app = FastAPI(title="Edu Finance API", version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "https://finance-ai-assistant-kohl.vercel.app",
-    ],
-    allow_credentials=True,
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -81,7 +76,7 @@ def get_mes_referencia(db: Session) -> tuple[datetime, datetime]:
 
 # ── GET /dados ────────────────────────────────────────────────
 @app.get("/dados")
-async def get_dados(db: Session = Depends(get_db)):
+async def get_dados(periodo: str = "1m", db: Session = Depends(get_db)):
     usuario = db.query(Usuario).filter(Usuario.id == USUARIO_ID).first()
     if not usuario:
         return {"erro": "Usuário não encontrado. Execute: python scripts/seed.py"}
@@ -187,6 +182,7 @@ async def get_dados(db: Session = Depends(get_db)):
             "saldo_mes":       round(saldo_mes, 2),
             "taxa_poupanca":   taxa_poupanca,
             "mes_referencia":  mes_referencia,
+            "periodo":         periodo,
         },
         "gastos_categoria": gastos_categoria,
         "historico_mensal": historico_mensal,
