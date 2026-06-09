@@ -37,6 +37,33 @@ O projeto integra **Engenharia de Prompts avançada**, dados mockados realistas 
 
 <br/>
 
+## ✨ Interface
+
+### - Dashboard Financeiro
+
+<img src="./imgs/dashboard-page.png" width="75%" alt="Financial dashboard interface showing client portfolio summary with R$20,000 total assets, R$5,000 savings, R$3.8 million in expenses, and R$1.5 million balance. Reserve indicator displays 66.7% with wealth management information. Layout includes user profile section with investment risk level and monthly spending categories." />
+
+---
+
+### - Chat Inteligente
+
+<img src="./imgs/chat-ai-page.png" width="75%" alt="Intelligent chat interface with Edu financial assistant greeting the user João in Portuguese. Main conversation area displays how Edu can assist with finances today, offering four suggested action buttons: How is my wallet, My financial goals, Investment suggestions, and Expense analysis. Input field at bottom with placeholder text asking about finances. Light theme with blue accents." />
+
+---
+
+### - Perfil do Usuário
+
+<img src="./imgs/profile-page.png" width="75%" alt="User profile page displaying comprehensive financial information for client João Silva with moderate risk profile. Shows patrimony section with R$20,000 total assets, R$5,000 savings breakdown, expense categories totaling R$3.8 million, R$1.5 million balance, and reserve status at 66.7%. Includes spending by category section. Clean interface with organized financial metrics." />
+
+---
+
+### - Tema Claro
+
+<img src="./imgs/light-theme-chat.png" width="75%" alt="Light theme chat interface showcasing Edu Finance assistant with clean, minimalist design. Left sidebar displays conversation history with recent queries about financial goals. Main chat area shows greeting message Hi João with Edu Finance subtitle and four interactive buttons for financial inquiries. Input field at bottom for user messages. Color scheme uses soft grays, white backgrounds, and teal accents creating professional and accessible appearance." />
+
+
+<br/>
+
 ## 🗂️ Estrutura do Projeto
 
 ```
@@ -93,28 +120,6 @@ dio-lab-bia-do-futuro/
         └───────────────│ metas        │
                         │ historico    │
                         └──────────────┘
-```
-
-```mermaid
-flowchart TD
-    A[Usuário] --> B[Frontend]
-    
-    B -->|/chat ou /chat/stream| C[FastAPI]
-    
-    C --> D[Chat Service]
-    
-    D --> E[Construção de Prompt]
-    E --> F[Contexto do Cliente]
-    
-    F --> G[Perfil + Transações + Metas]
-    
-    G --> H[LLM - Groq]
-    
-    H --> I[Validação de Resposta]
-    I --> J[Resposta Final]
-    
-    J --> B
-
 ```
 
 <br/>
