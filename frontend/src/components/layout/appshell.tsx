@@ -180,9 +180,9 @@ export function AppShell() {
         />
         <main className={`flex-1 min-h-0 ${isDash || isProfile ? "overflow-y-auto scrollbar-thin" : "overflow-hidden"}`}>
           <Routes>
-            <Route path="/"          element={<ChatWindow investorName={data?.perfil.nome} />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/perfil"    element={<ProfilePage />} />
+            <Route path="/" element={<ChatWindow investorName={data?.perfil.nome} />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="perfil" element={<ProfilePage />} />
           </Routes>
         </main>
       </div>

@@ -36,6 +36,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 criar_tabelas()
 
 USUARIO_ID    = 1

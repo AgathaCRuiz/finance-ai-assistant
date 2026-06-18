@@ -47,7 +47,7 @@
     --user-text:      #0c4a6e;
   }
 
-  html, body, #root { height: 100%; width: 100%; overflow: hidden; }
+  html, body, #root { height: 100%; width: 100%}
 
   body {
     background-color: var(--bg-base);
