@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useSpring, useTransform, MotionValue } from "framer-motion";
+import { motion, useMotionValue, useSpring, useMotionValueEvent, MotionValue } from "framer-motion";
 import { useEffect, useMemo } from "react";
 
 interface ParticleData {
@@ -18,41 +18,45 @@ interface ParticleProps {
   mouseY: MotionValue<number>;
 }
 
-// Componente individual para cada partícula. 
-// Evita re-renderizar o pai e permite física independente para cada estrela.
 function SingleParticle({ p, mouseX, mouseY }: ParticleProps) {
-  const attractionRadius = 220; // Raio de atração ligeiramente maior para melhor usabilidade
+  const attractionRadius = 250;
 
-  // 1. Calcula a distância e aplica uma curva de atração exponencial (não-linear)
-  const offsetX = useTransform([mouseX, mouseY], ([latestX, latestY]) => {
-    const dx = latestX - p.x;
-    const dy = latestY - p.y;
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+
+  // Calcula o offset toda vez que mouseX ou mouseY mudar
+  useMotionValueEvent(mouseX, "change", (mx) => {
+    const my = mouseY.get();
+    const dx = mx - p.x;
+    const dy = my - p.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    if (distance < attractionRadius) {
-      // Força exponencial: quanto mais perto do mouse, maior a atração (efeito magnético real)
+    if (distance < attractionRadius && distance > 0) {
       const force = Math.pow((attractionRadius - distance) / attractionRadius, 1.8);
-      return dx * force * 0.22; // 0.22 determina a força de aproximação
+      rawX.set(dx * force * 0.35);
+    } else {
+      rawX.set(0);
     }
-    return 0;
   });
 
-  const offsetY = useTransform([mouseX, mouseY], ([latestX, latestY]) => {
-    const dx = latestX - p.x;
-    const dy = latestY - p.y;
+  useMotionValueEvent(mouseY, "change", (my) => {
+    const mx = mouseX.get();
+    const dx = mx - p.x;
+    const dy = my - p.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    if (distance < attractionRadius) {
+    if (distance < attractionRadius && distance > 0) {
       const force = Math.pow((attractionRadius - distance) / attractionRadius, 1.8);
-      return dy * force * 0.22;
+      rawY.set(dy * force * 0.35);
+    } else {
+      rawY.set(0);
     }
-    return 0;
   });
 
-  // 2. Aplica suavização com Física de Mola (Spring Physics)
-  // stiffness: rigidez da mola, damping: amortecimento (evita oscilação infinita), mass: peso/inércia
-  const smoothX = useSpring(offsetX, { stiffness: 50, damping: 15, mass: 0.6 });
-  const smoothY = useSpring(offsetY, { stiffness: 50, damping: 15, mass: 0.6 });
+  const smoothX = useSpring(rawX, { stiffness: 80, damping: 18, mass: 0.4 });
+  const smoothY = useSpring(rawY, { stiffness: 80, damping: 18, mass: 0.4 });
+
+  const isWhite = p.color === "#ffffff";
 
   return (
     <motion.div
@@ -64,22 +68,20 @@ function SingleParticle({ p, mouseX, mouseY }: ParticleProps) {
         y: smoothY,
       }}
     >
-      {/* Elemento interno que faz o efeito de flutuação e brilho (independente do mouse) */}
       <motion.div
         className="rounded-full"
         style={{
           width: p.size,
           height: p.size,
           background: p.color,
-          boxShadow:
-            p.color === "#ffffff"
-              ? "0 0 6px rgba(255,255,255,0.8), 0 0 12px rgba(255,255,255,0.4)"
-              : "0 0 6px rgba(34,211,238,0.8), 0 0 12px rgba(34,211,238,0.4)",
+          boxShadow: isWhite
+            ? "0 0 6px rgba(255,255,255,0.8), 0 0 14px rgba(255,255,255,0.4)"
+            : "0 0 6px rgba(34,211,238,0.9), 0 0 16px rgba(34,211,238,0.5)",
         }}
         animate={{
-          y: [0, -12, 0], // flutuação sutil
-          opacity: [p.opacity, p.opacity * 1.6, p.opacity], // pulsação de brilho
-          scale: [1, 1.25, 1],
+          y: [0, -14, 0],
+          opacity: [p.opacity, p.opacity * 1.8, p.opacity],
+          scale: [1, 1.3, 1],
         }}
         transition={{
           duration: p.duration,
@@ -93,7 +95,6 @@ function SingleParticle({ p, mouseX, mouseY }: ParticleProps) {
 }
 
 function Particles() {
-  // Inicializa fora da tela (-9999) para as partículas não serem atraídas para o canto superior esquerdo no início
   const mouseX = useMotionValue(-9999);
   const mouseY = useMotionValue(-9999);
 
@@ -104,7 +105,6 @@ function Particles() {
     };
 
     const handleLeave = () => {
-      // Afasta o ponto magnético quando o mouse sai da janela
       mouseX.set(-9999);
       mouseY.set(-9999);
     };
