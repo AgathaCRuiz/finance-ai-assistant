@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import type { DadosResponse } from "@/types/api";
-import { Tooltip } from "./tooltip";
+import { Tooltip } from "./ToolTip";
 
 interface InsightsPanelProps { data: DadosResponse; }
 

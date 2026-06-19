@@ -1,2 +1,2 @@
-export * from "./chatservice";
-export * from "./investorservice";
+export * from "./chatService";
+export * from "./investorService";

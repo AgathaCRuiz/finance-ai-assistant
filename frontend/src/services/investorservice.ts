@@ -1,15 +1,14 @@
+import { apiFetch } from "@/lib/apifetch";
 import type { DadosResponse, EvolucaoMensal } from "@/types/api";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
-
 export async function fetchDados(periodo = "1m"): Promise<DadosResponse> {
-  const res = await fetch(`${BASE_URL}/dados?periodo=${periodo}`);
+  const res = await apiFetch(`/dados?periodo=${periodo}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json() as Promise<DadosResponse>;
 }
 
 export async function fetchEvolucao(): Promise<EvolucaoMensal[]> {
-  const res = await fetch(`${BASE_URL}/evolucao`);
+  const res = await apiFetch("/evolucao");
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json() as Promise<EvolucaoMensal[]>;
 }

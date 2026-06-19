@@ -1,10 +1,7 @@
+import { apiFetch, BASE_URL } from "@/lib/apifetch";
+import { supabase } from "@/lib/supabase";
 import type { StreamToken } from "@/types/api";
 
-const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  "https://finance-ai-assistant-production-bcea.up.railway.app";
-
-// --- GET /chat/stream?mensagem=...&session_id=... ---
 export async function sendMessageStream(
   mensagem: string,
   sessionId: string | null,
@@ -14,13 +11,18 @@ export async function sendMessageStream(
   onError: (err: Error) => void
 ): Promise<void> {
   try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
     const params = new URLSearchParams({ mensagem });
     if (sessionId) params.set("session_id", sessionId);
 
-    const res = await fetch(`${BASE_URL}/chat/stream?${params.toString()}`);
+    const res = await fetch(`${BASE_URL}/chat/stream?${params.toString()}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
     if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
 
-    const reader = res.body.getReader();
+    const reader  = res.body.getReader();
     const decoder = new TextDecoder();
 
     while (true) {
@@ -45,7 +47,6 @@ export async function sendMessageStream(
   }
 }
 
-// --- DELETE /chat/session/:id ---
 export async function deleteSessionOnServer(sessionId: string): Promise<void> {
-  await fetch(`${BASE_URL}/chat/session/${sessionId}`, { method: "DELETE" });
+  await apiFetch(`/chat/session/${sessionId}`, { method: "DELETE" });
 }

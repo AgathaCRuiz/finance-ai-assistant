@@ -1,4 +1,4 @@
-import { AppShell } from "@/components/layout/appshell";
+import { AppShell } from "@/components/layout/AppShell";
 
 export function ChatPage() {
   return <AppShell />;

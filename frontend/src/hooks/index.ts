@@ -1,2 +1,2 @@
-export * from "./usechat";
-export * from "./useinvestorprofile";
+export * from "./useChat";
+export * from "./useInvestorProfile";

@@ -4,7 +4,7 @@ import {
   Tooltip, ResponsiveContainer, ReferenceLine,
 } from "recharts";
 import { motion } from "framer-motion";
-import { useEvolucao } from "@/hooks/useevolucao";
+import { useEvolucao } from "@/hooks/useEvolucao";
 
 type View = "patrimonio" | "saldo" | "receita_gastos";
 

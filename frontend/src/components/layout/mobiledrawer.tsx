@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sidebar } from "./sidebar";
+import { Sidebar } from "./SideBar";
 
 interface MobileDrawerProps {
   open: boolean;

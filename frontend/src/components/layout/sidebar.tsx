@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useInvestorProfile } from "@/hooks/useinvestorprofile";
-import { useChat } from "@/hooks/usechat";
-import { InvestorCard } from "@/components/investor/investorcard";
-import { PortfolioSummary } from "@/components/investor/portfoliosummary";
-import { GoalsList } from "@/components/investor/goalslist";
+import { useInvestorProfile } from "@/hooks/useInvestorProfile";
+import { useChat } from "@/hooks/useChat";
+import { InvestorCard } from "@/components/investor/InvestorCard";
+import { PortfolioSummary } from "@/components/investor/PortfolioSummary";
+import { GoalsList } from "@/components/investor/GoalsList";
 
 interface SidebarProps {
   onDashboard?: () => void;

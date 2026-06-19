@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchEvolucao } from "@/services/investorservice";
+import { fetchEvolucao } from "@/services/investorService";
 import type { EvolucaoMensal, AsyncState } from "@/types/api";
 
 export function useEvolucao(): AsyncState<EvolucaoMensal[]> {

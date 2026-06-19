@@ -2,14 +2,26 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Orbs from "@/components/hero/Orbs";
 import GridBackground from "@/components/hero/GridBackground";
+import Particles from "@/components/hero/Particles";
 
 export function CTASection() {
   const navigate = useNavigate();
 
   return (
     <section id="sobre" className="relative px-6 py-32 text-center overflow-hidden">
-      <Orbs />
-      <GridBackground />
+
+      {/* Background layers — mesma ordem da Hero */}
+      <div className="absolute inset-0 z-[1]">
+        <GridBackground />
+      </div>
+      <div className="absolute inset-0 z-[2]">
+        <Particles />
+      </div>
+      <div className="absolute inset-0 z-[3]">
+        <Orbs />
+      </div>
+
+      {/* Conteúdo */}
       <div className="relative z-10 max-w-2xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}

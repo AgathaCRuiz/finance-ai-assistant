@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Message } from "@/types";
-import { MessageBubble } from "./messagebubble";
-import { TypingIndicator } from "./typingindicator";
+import { MessageBubble } from "./MessageBubble";
+import { TypingIndicator } from "./TypingIndicator";
 
 interface MessageListProps {
   messages: Message[];

@@ -1,3 +1,3 @@
-export { InvestorCard } from "./investorcard";
-export { PortfolioSummary } from "./portfoliosummary";
-export { GoalsList } from "./goalslist";
+export { InvestorCard } from "./InvestorCard";
+export { PortfolioSummary } from "./PortfolioSummary";
+export { GoalsList } from "./GoalsList";
