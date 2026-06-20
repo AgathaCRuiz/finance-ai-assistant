@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { MetricasDados, ReservaDados } from "@/types/api";
-import { Tooltip, KpiTooltipContent } from "./ToolTip";
+import { Tooltip, KpiTooltipContent } from "./tooltip";
 
 interface KpiCardsProps {
   patrimonio: number;

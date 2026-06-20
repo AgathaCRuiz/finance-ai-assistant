@@ -1,7 +1,7 @@
 import { useChat } from "@/hooks/useChat";
-import { MessageList } from "./MessageList";
-import { MessageInput } from "./MessageInput";
-import { WelcomeScreen } from "./WelcomeScreen";
+import { MessageList } from "./messagelist";
+import { MessageInput } from "./messageinput";
+import { WelcomeScreen } from "./welcomescreen";
 
 interface ChatWindowProps { investorName?: string; }
 

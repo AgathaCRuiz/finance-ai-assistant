@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useInvestorProfile } from "@/hooks/useInvestorProfile";
-import { KpiCards } from "@/components/dashboard/Kpicards";
-import { SpendingChart } from "@/components/dashboard/SpendingChart";
-import { AllocationDonut } from "@/components/dashboard/AllocationDonut";
-import { InsightsPanel } from "@/components/dashboard/InsightsPanel";
-import { GoalsProgress } from "@/components/dashboard/GoalsProgress";
-import { PatrimonyChart } from "@/components/dashboard/PatrimonyChart";
-import { AlertsBanner } from "@/components/dashboard/AlertsBanner";
-import { PeriodFilter, type Period } from "@/components/dashboard/PeriodFilter";
+import { KpiCards } from "@/components/dashboard/kpicards";
+import { SpendingChart } from "@/components/dashboard/spendingchart";
+import { AllocationDonut } from "@/components/dashboard/allocationdonut";
+import { InsightsPanel } from "@/components/dashboard/insightspanel";
+import { GoalsProgress } from "@/components/dashboard/goalsprogress";
+import { PatrimonyChart } from "@/components/dashboard/patrimonychart";
+import { AlertsBanner } from "@/components/dashboard/alertsbanner";
+import { PeriodFilter, type Period } from "@/components/dashboard/periodfilter";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function DashboardPage() {

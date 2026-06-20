@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sidebar } from "./SideBar";
 import { Header } from "./Header";
 import { MobileDrawer } from "./MobileDrawer";
-import { ChatWindow } from "@/components/chat/ChatWindow";
+import { ChatWindow } from "@/components/chat/chatwindow";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { useInvestorProfile } from "@/hooks/useInvestorProfile";

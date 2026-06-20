@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
-import { AppShell } from "@/components/layout/AppShell";
-import { HomePage } from "@/pages/blog/HomePage";
+import { AppShell } from "@/components/layout/appshell";
+import { HomePage } from "@/pages/blog/homepage";
 import { LoginPage } from "@/pages/LoginPage";
 import { UploadPage } from "@/pages/UploadPage";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
