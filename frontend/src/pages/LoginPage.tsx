@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/store/authstore";
 
 type Mode = "login" | "signup";
 
@@ -135,10 +135,13 @@ export function LoginPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             <div>
-              <label style={{ color: "rgba(160,180,200,0.6)", fontSize: 11, letterSpacing: "0.05em" }}
+              <label htmlFor="email" style={{ color: "rgba(160,180,200,0.6)", fontSize: 11, letterSpacing: "0.05em" }}
                 className="uppercase font-mono block mb-1.5">E-mail</label>
               <input
+                id="email"
+                name="email"
                 type="email"
+                autoComplete="email"
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
@@ -148,10 +151,13 @@ export function LoginPage() {
               />
             </div>
             <div>
-              <label style={{ color: "rgba(160,180,200,0.6)", fontSize: 11, letterSpacing: "0.05em" }}
+              <label htmlFor="password" style={{ color: "rgba(160,180,200,0.6)", fontSize: 11, letterSpacing: "0.05em" }}
                 className="uppercase font-mono block mb-1.5">Senha</label>
               <input
+                id="password"
+                name="password"
                 type="password"
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
                 required
                 minLength={6}
                 value={password}
