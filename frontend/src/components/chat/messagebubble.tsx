@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import type { Message } from "@/types/chat";
 import { MarkdownMessage } from "./markdownmessage";
-import { ChartRenderer, parseChartFromContent, stripChartBlock } from "./ChartRenderer";
+import { ChartRenderer, parseChartFromContent, stripChartBlock } from "./chartrenderer";
 
 interface MessageBubbleProps { message: Message; }
 

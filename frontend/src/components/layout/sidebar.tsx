@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInvestorProfile } from "@/hooks/useInvestorProfile";
-import { useChat } from "@/hooks/useChat";
+import { useChat } from "@/hooks/usechat";
 import { InvestorCard } from "@/components/investor/InvestorCard";
 import { PortfolioSummary } from "@/components/investor/PortfolioSummary";
 import { GoalsList } from "@/components/investor/GoalsList";

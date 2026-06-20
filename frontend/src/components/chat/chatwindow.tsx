@@ -1,4 +1,4 @@
-import { useChat } from "@/hooks/useChat";
+import { useChat } from "@/hooks/usechat";
 import { MessageList } from "./messagelist";
 import { MessageInput } from "./messageinput";
 import { WelcomeScreen } from "./welcomescreen";
