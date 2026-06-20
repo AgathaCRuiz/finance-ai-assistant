@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/store/authstore";
+import { useAuthStore } from "@/store/authStore";
 
 type Mode = "login" | "signup";
 
