@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useInvestorProfile } from "@/hooks/useInvestorProfile";
+import { useInvestorProfile } from "@/hooks/useinvestorprofile";
 import { KpiCards } from "@/components/dashboard/kpicards";
 import { SpendingChart } from "@/components/dashboard/spendingchart";
 import { AllocationDonut } from "@/components/dashboard/allocationdonut";

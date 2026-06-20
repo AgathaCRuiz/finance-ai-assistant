@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchDados } from "@/services/investorService";
+import { fetchDados } from "@/services/investorservice";
 import type { DadosResponse, AsyncState } from "@/types/api";
 
 export function useInvestorProfile(periodo = "1m"): AsyncState<DadosResponse> {

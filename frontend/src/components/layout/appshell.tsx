@@ -1,13 +1,13 @@
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sidebar } from "./SideBar";
-import { Header } from "./Header";
-import { MobileDrawer } from "./MobileDrawer";
-import { ChatWindow } from "@/components/chat/chatwindow";
-import { DashboardPage } from "@/pages/DashboardPage";
-import { ProfilePage } from "@/pages/ProfilePage";
-import { useInvestorProfile } from "@/hooks/useInvestorProfile";
+import { Sidebar } from "./sidebar";
+import { Header } from "./header";
+import { MobileDrawer } from "./mobiledrawer";
+import { DashboardPage } from "@/pages/dashboardpage";
+import { ProfilePage } from "@/pages/profilepage";
+import { useInvestorProfile } from "@/hooks/useinvestorprofile";
+import { ProfilePage } from "@/pages/profilepage";
 import { useChatStore } from "@/store/chatStore";
 
 const MIN_WIDTH = 240;

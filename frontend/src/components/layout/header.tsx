@@ -1,4 +1,4 @@
-import { useThemeStore } from "@/store/themeStore";
+import { useThemeStore } from "@/store/themestore";
 import { motion } from "framer-motion";
 
 interface HeaderProps {

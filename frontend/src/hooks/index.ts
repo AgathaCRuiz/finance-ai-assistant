@@ -1,2 +1,2 @@
 export * from "./usechat";
-export * from "./useInvestorProfile";
+export * from "./useinvestorprofile";

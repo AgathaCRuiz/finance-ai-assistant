@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useChatStore } from "@/store/chatStore";
-import { sendMessageStream, deleteSessionOnServer } from "@/services/chatService";
+import { sendMessageStream, deleteSessionOnServer } from "@/services/chatservice";
 import type { Message } from "@/types/chat";
 
 function genId() {
