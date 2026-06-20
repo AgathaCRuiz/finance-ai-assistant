@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { uploadCsv } from "@/services/profileService";
+import { uploadCsv } from "@/services/profileservice";
 
 type Status = "idle" | "dragging" | "uploading" | "success" | "error";
 

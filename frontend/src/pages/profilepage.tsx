@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { fetchPerfil, updatePerfil, createMeta, updateMeta, deleteMeta } from "@/services/profileService";
+import { fetchPerfil, updatePerfil, createMeta, updateMeta, deleteMeta } from "@/services/profileservice";
 import type { PerfilCompleto, MetaCompleta } from "@/types/api";
 
 // ── helpers ──────────────────────────────────────────────────

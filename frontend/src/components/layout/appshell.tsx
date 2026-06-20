@@ -7,8 +7,8 @@ import { MobileDrawer } from "./mobiledrawer";
 import { DashboardPage } from "@/pages/dashboardpage";
 import { ProfilePage } from "@/pages/profilepage";
 import { useInvestorProfile } from "@/hooks/useinvestorprofile";
-import { ProfilePage } from "@/pages/profilepage";
 import { useChatStore } from "@/store/chatStore";
+import { ChatWindow } from "@/components/chat/chatwindow";
 
 const MIN_WIDTH = 240;
 const MAX_WIDTH = 500;
