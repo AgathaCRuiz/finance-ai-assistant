@@ -7,6 +7,14 @@ import { UploadPage } from "@/pages/UploadPage";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuthStore } from "@/store/authStore";
 
+// Se usuário já está logado e cai na home/login, manda pro app
+function RedirectIfAuthed({ children }: { children: React.ReactNode }) {
+  const { session, loading } = useAuthStore();
+  if (loading) return null;
+  if (session) return <Navigate to="/app" replace />;
+  return <>{children}</>;
+}
+
 export function App() {
   const init = useAuthStore(s => s.init);
   useEffect(() => { init(); }, [init]);
@@ -14,8 +22,8 @@ export function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/"       element={<HomePage />} />
-        <Route path="/login"  element={<LoginPage />} />
+        <Route path="/"       element={<RedirectIfAuthed><HomePage /></RedirectIfAuthed>} />
+        <Route path="/login"  element={<RedirectIfAuthed><LoginPage /></RedirectIfAuthed>} />
         <Route path="/upload" element={<ProtectedRoute><UploadPage /></ProtectedRoute>} />
         <Route path="/app/*"  element={<ProtectedRoute><AppShell /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />

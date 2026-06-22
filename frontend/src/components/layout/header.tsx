@@ -1,5 +1,7 @@
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useThemeStore } from "@/store/themestore";
-import { motion } from "framer-motion";
+import { useAuthStore } from "@/store/authStore";
 
 interface HeaderProps {
   investorName?: string;
@@ -21,6 +23,13 @@ export function Header({
   mobileDrawerOpen, onToggleMobileDrawer,
 }: HeaderProps) {
   const { theme, toggle } = useThemeStore();
+  const signOut = useAuthStore(s => s.signOut);
+  const [confirmLogout, setConfirmLogout] = useState(false);
+
+  async function handleLogout() {
+    await signOut();
+    window.location.href = "/";
+  }
 
   return (
     <header
@@ -103,6 +112,8 @@ export function Header({
             {investorName}
           </span>
         )}
+
+        {/* Toggle tema */}
         <motion.button onClick={toggle} whileTap={{ scale: 0.92 }}
           style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all hover:border-[var(--border-bright)]">
@@ -113,6 +124,55 @@ export function Header({
             {theme === "dark" ? "CLARO" : "ESCURO"}
           </span>
         </motion.button>
+
+        {/* Logout */}
+        <div className="relative">
+          <motion.button
+            onClick={() => setConfirmLogout(v => !v)}
+            whileTap={{ scale: 0.92 }}
+            title="Sair"
+            style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", color: "#f87171" }}
+            className="flex items-center justify-center w-8 h-8 rounded-lg transition-all hover:border-red-400/40"
+          >
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M5 1.5H2.5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1H5M9 9.5l3-3-3-3M12 6.5H4.5"
+                stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </motion.button>
+
+          <AnimatePresence>
+            {confirmLogout && (
+              <motion.div
+                initial={{ opacity: 0, y: -6, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -6, scale: 0.95 }}
+                transition={{ duration: 0.15 }}
+                className="absolute right-0 top-full mt-2 z-50 rounded-xl p-3 w-44"
+                style={{
+                  background: "var(--bg-elevated)",
+                  border: "1px solid var(--border-bright)",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+                }}
+              >
+                <p style={{ color: "var(--text-secondary)" }} className="font-body text-xs mb-2.5">
+                  Sair da conta?
+                </p>
+                <div className="flex gap-2">
+                  <button onClick={handleLogout}
+                    className="flex-1 rounded-lg py-1.5 font-mono text-[10px] transition-colors"
+                    style={{ background: "#f8717120", color: "#f87171", border: "1px solid #f8717140" }}>
+                    SAIR
+                  </button>
+                  <button onClick={() => setConfirmLogout(false)}
+                    className="flex-1 rounded-lg py-1.5 font-mono text-[10px] transition-colors"
+                    style={{ background: "var(--bg-hover)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
+                    CANCELAR
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </header>
   );

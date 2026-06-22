@@ -22,8 +22,8 @@ export function AppShell() {
   const isStreaming = useChatStore((s) => s.isStreaming);
   const navigate = useNavigate();
   const location = useLocation();
-  const isDash    = location.pathname === "/dashboard";
-  const isProfile = location.pathname === "/perfil";
+  const isDash    = location.pathname === "/app/dashboard";
+  const isProfile = location.pathname === "/app/perfil";
 
   const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -77,8 +77,8 @@ export function AppShell() {
     localStorage.setItem(STORAGE_KEY, String(DEFAULT_WIDTH));
   }, []);
 
-  function toggleDashboard() { navigate(isDash ? "/" : "/dashboard"); }
-  function toggleProfile()   { navigate(isProfile ? "/" : "/perfil"); }
+  function toggleDashboard() { navigate(isDash ? "/app" : "/app/dashboard"); }
+  function toggleProfile()   { navigate(isProfile ? "/app" : "/app/perfil"); }
 
   return (
     <div
