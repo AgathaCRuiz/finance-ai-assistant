@@ -1,12 +1,12 @@
 """
-auth_middleware.py — Valida JWT do Supabase em cada requisição
+auth_middleware.py — Valida JWT do Supabase (suporta RS256 e ES256)
 """
 import os
+import httpx
+from functools import lru_cache
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
-import httpx
-from functools import lru_cache
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,7 +19,6 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 @lru_cache(maxsize=1)
 def _get_jwks() -> dict:
-    """Busca as chaves públicas do Supabase (cached)."""
     resp = httpx.get(JWKS_URL, timeout=10)
     resp.raise_for_status()
     return resp.json()
@@ -28,10 +27,6 @@ def _get_jwks() -> dict:
 def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> dict:
-    """
-    Dependency do FastAPI — valida o JWT e retorna o payload do usuário.
-    Uso: user = Depends(get_current_user)
-    """
     if not credentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -43,15 +38,27 @@ def get_current_user(
 
     try:
         jwks = _get_jwks()
-        # Tenta cada chave do JWKS
+        keys = jwks.get("keys", [])
+
+        # Pega o kid do header do token para encontrar a chave certa
+        unverified_header = jwt.get_unverified_header(token)
+        token_kid = unverified_header.get("kid")
+        token_alg = unverified_header.get("alg", "RS256")
+
+        # Filtra a chave pelo kid se disponível
+        matching_keys = [k for k in keys if k.get("kid") == token_kid] if token_kid else keys
+        if not matching_keys:
+            matching_keys = keys  # fallback: tenta todas
+
         payload = None
         last_error = None
-        for key in jwks.get("keys", []):
+
+        for key in matching_keys:
             try:
                 payload = jwt.decode(
                     token,
                     key,
-                    algorithms=["RS256"],
+                    algorithms=[token_alg, "RS256", "ES256"],
                     options={"verify_aud": False},
                 )
                 break
