@@ -373,7 +373,7 @@ export function ProfilePage() {
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Section title="Metas financeiras" accent="#f59e0b">
             <div className="flex flex-col gap-3 mb-4">
-              {perfil.metas.map((meta, i) => {
+              {(perfil.metas ?? []).map((meta, i) => {
                 const pct = Math.min((meta.valor_atual / meta.valor_necessario) * 100, 100);
                 const colors = ["#22d3ee","#a78bfa","#34d399","#f59e0b"];
                 const color  = colors[i % colors.length];
