@@ -9,8 +9,10 @@ import { GoalsList } from "@/components/investor/goalslist";
 interface SidebarProps {
   onDashboard?: () => void;
   onProfile?: () => void;
+  onUpload?: () => void;
   isDashboard?: boolean;
   isProfile?: boolean;
+  isUpload?: boolean;
   width?: number;
 }
 
@@ -27,7 +29,7 @@ function timeAgo(ts: number): string {
   if (m < 1) return "agora"; if (m < 60) return `${m}m`; if (h < 24) return `${h}h`; return `${day}d`;
 }
 
-export function Sidebar({ onDashboard, onProfile, isDashboard, isProfile, width = 256 }: SidebarProps) {
+export function Sidebar({ onDashboard, onProfile, onUpload, isDashboard, isProfile, isUpload, width = 256 }: SidebarProps) {
   const { data, status, error } = useInvestorProfile();
   const { sessions, activeSession, newChat, switchSession, deleteSession } = useChat();
   const isCompact = width < COLLAPSE_THRESHOLD;
@@ -122,6 +124,15 @@ export function Sidebar({ onDashboard, onProfile, isDashboard, isProfile, width 
             className="w-7 h-7 rounded-lg flex items-center justify-center hover:border-[var(--border-bright)] transition-colors" title="Nova conversa">
             <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
               <path d="M5.5 1v9M1 5.5h9" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </motion.button>
+
+          {/* Upload CSV */}
+          <motion.button whileTap={{ scale: 0.9 }} onClick={onUpload}
+            style={{ background: isUpload ? "var(--accent-glow)" : "var(--bg-elevated)", border: `1px solid ${isUpload ? "var(--accent-dim)" : "var(--border)"}` }}
+            className="w-7 h-7 rounded-lg flex items-center justify-center hover:border-[var(--border-bright)] transition-colors" title="Importar extrato CSV">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+              <path d="M5.5 8V1M5.5 8L3 5.5M5.5 8L8 5.5M1 10h9" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </motion.button>
         </div>

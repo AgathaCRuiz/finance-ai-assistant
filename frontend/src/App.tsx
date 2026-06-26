@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { AppShell } from "@/components/layout/appshell";
 import { HomePage } from "@/pages/blog/homepage";
 import { LoginPage } from "@/pages/LoginPage";
-import { UploadPage } from "@/pages/UploadPage";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuthStore } from "@/store/authStore";
 
@@ -24,7 +23,6 @@ export function App() {
       <Routes>
         <Route path="/"       element={<RedirectIfAuthed><HomePage /></RedirectIfAuthed>} />
         <Route path="/login"  element={<RedirectIfAuthed><LoginPage /></RedirectIfAuthed>} />
-        <Route path="/upload" element={<ProtectedRoute><UploadPage /></ProtectedRoute>} />
         <Route path="/app/*"  element={<ProtectedRoute><AppShell /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
