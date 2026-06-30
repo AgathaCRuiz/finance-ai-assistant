@@ -2,30 +2,29 @@ import requests
 from config.settings import GROQ_API_KEY, GROQ_API_URL, MODELO
 from agent.prompt import SYSTEM_PROMPT
 
-def perguntar(mensagem: str, contexto: str, historico: list[dict] = []) -> str:
+
+def perguntar(mensagem: str, contexto: str, historico: list[dict] | None = None) -> str:
     """
-    Envia mensagem para a Groq mantendo o histórico da conversa.
+    Envia mensagem para a Groq com contexto real do usuário.
 
     Args:
         mensagem:  Última mensagem do usuário.
-        contexto:  Dados do cliente (perfil, transações, metas).
-        historico: Lista de mensagens anteriores no formato
-                   [{"role": "user"|"assistant", "content": "..."}]
+        contexto:  Dados reais do cliente (perfil, transações, metas).
+        historico: Histórico da conversa no formato OpenAI.
 
     Returns:
         Texto da resposta do modelo.
     """
+    if historico is None:
+        historico = []
 
-    # System prompt inclui o contexto do cliente — enviado uma única vez
     system_content = f"""{SYSTEM_PROMPT}
 
-CONTEXTO DO CLIENTE:
 {contexto}"""
 
-    # Monta o array completo: system + histórico + nova mensagem
     messages = [
         {"role": "system", "content": system_content},
-        *historico,
+        *historico[-16:],  # últimas 8 trocas para não estourar contexto
         {"role": "user", "content": mensagem},
     ]
 
@@ -35,10 +34,10 @@ CONTEXTO DO CLIENTE:
     }
 
     payload = {
-        "model": MODELO,
-        "messages": messages,
-        "max_tokens": 1024,
-        "temperature": 0.7,
+        "model":       MODELO,
+        "messages":    messages,
+        "max_tokens":  1024,
+        "temperature": 0.5,  # menos criativo, mais fiel aos dados
     }
 
     try:

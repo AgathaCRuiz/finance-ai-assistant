@@ -22,22 +22,15 @@ from parsers.csv_parser import parsear_extrato
 
 app = FastAPI(title="Edu Finance API", version="3.0.0")
 
-ALLOWED_ORIGINS = os.getenv(
-    "ALLOWED_ORIGINS",
-    "http://localhost:5173,http://localhost:3000"
-).split(",")
-
-print("ALLOWED_ORIGINS =", ALLOWED_ORIGINS)
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
-    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 MAX_HISTORICO = 20
 
@@ -313,7 +306,12 @@ async def chat(req: MensagemRequest, user: dict = Depends(get_current_user)):
         .execute()
     historico = [{"role": m["role"], "content": m["content"]} for m in (msgs_res.data or [])]
 
-    resposta = responder_com_historico(req.mensagem, historico)
+    # Monta contexto com dados reais do usuário autenticado
+    from agent.context import montar_contexto
+    contexto = montar_contexto(uid, supabase)
+
+    from agent.llm import perguntar
+    resposta = perguntar(req.mensagem, contexto, historico)
 
     # Salva mensagens
     supabase.table("mensagens_chat").insert([
@@ -347,7 +345,11 @@ async def chat_stream(
         .execute()
     historico = [{"role": m["role"], "content": m["content"]} for m in (msgs_res.data or [])]
 
-    resposta = responder_com_historico(mensagem, historico)
+    from agent.context import montar_contexto
+    contexto = montar_contexto(uid, supabase)
+
+    from agent.llm import perguntar
+    resposta = perguntar(mensagem, contexto, historico)
 
     supabase.table("mensagens_chat").insert([
         {"sessao_id": sid, "role": "user",      "content": mensagem},

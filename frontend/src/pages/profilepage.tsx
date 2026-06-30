@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fetchPerfil, updatePerfil, createMeta, updateMeta, deleteMeta } from "@/services/profileservice";
 import type { PerfilCompleto, MetaCompleta } from "@/types/api";
+import { apiFetch } from "@/lib/apifetch";
 
 // ── helpers ──────────────────────────────────────────────────
 function fmt(v: number) {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v ?? 0);
 }
 
 const RISK_OPTIONS = [
@@ -15,7 +16,6 @@ const RISK_OPTIONS = [
   { value: "agressivo",   label: "Agressivo",    color: "#f87171", desc: "Maximiza retorno, tolera volatilidade" },
 ];
 
-// ── Componente de campo ──────────────────────────────────────
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
@@ -28,7 +28,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function Input({ value, onChange, type = "text", placeholder }: {
-  value: string | number;
+  value: string | number | null | undefined;
   onChange: (v: string) => void;
   type?: string;
   placeholder?: string;
@@ -36,7 +36,7 @@ function Input({ value, onChange, type = "text", placeholder }: {
   return (
     <input
       type={type}
-      value={value}
+      value={value ?? ""}
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
       className="w-full rounded-xl px-4 py-2.5 font-body text-sm outline-none transition-all duration-200"
@@ -52,7 +52,6 @@ function Input({ value, onChange, type = "text", placeholder }: {
   );
 }
 
-// ── Card de seção ────────────────────────────────────────────
 function Section({ title, accent = "#22d3ee", children }: {
   title: string; accent?: string; children: React.ReactNode;
 }) {
@@ -72,7 +71,6 @@ function Section({ title, accent = "#22d3ee", children }: {
   );
 }
 
-// ── Toast ────────────────────────────────────────────────────
 function Toast({ msg, type }: { msg: string; type: "success" | "error" }) {
   return (
     <motion.div
@@ -94,19 +92,25 @@ function Toast({ msg, type }: { msg: string; type: "success" | "error" }) {
   );
 }
 
-// ── Página principal ─────────────────────────────────────────
 export function ProfilePage() {
-  const [perfil, setPerfil]         = useState<PerfilCompleto | null>(null);
-  const [loading, setLoading]       = useState(true);
-  const [saving, setSaving]         = useState(false);
-  const [toast, setToast]           = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const [perfil, setPerfil]           = useState<PerfilCompleto | null>(null);
+  const [metas, setMetas]             = useState<MetaCompleta[]>([]);
+  const [loading, setLoading]         = useState(true);
+  const [saving, setSaving]           = useState(false);
+  const [toast, setToast]             = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [editingMeta, setEditingMeta] = useState<MetaCompleta | null>(null);
-  const [newMeta, setNewMeta]       = useState(false);
-  const [metaForm, setMetaForm]     = useState({ titulo: "", valor_necessario: "", valor_atual: "", prazo: "" });
+  const [newMeta, setNewMeta]         = useState(false);
+  const [metaForm, setMetaForm]       = useState({ titulo: "", valor_necessario: "", valor_atual: "", prazo: "" });
 
   useEffect(() => {
-    fetchPerfil()
-      .then(setPerfil)
+    Promise.all([
+      fetchPerfil(),
+      apiFetch("/perfil/metas").then(r => r.json()) as Promise<MetaCompleta[]>,
+    ])
+      .then(([p, m]) => {
+        setPerfil(p);
+        setMetas(Array.isArray(m) ? m : []);
+      })
       .catch(() => showToast("Erro ao carregar perfil", "error"))
       .finally(() => setLoading(false));
   }, []);
@@ -122,14 +126,13 @@ export function ProfilePage() {
     try {
       await updatePerfil({
         nome:               perfil.nome,
-        email:              perfil.email,
         idade:              perfil.idade,
         perfil_investidor:  perfil.perfil_investidor,
-        objetivo_principal: perfil.objetivo_principal,
-        renda_mensal:       perfil.renda_mensal,
-        patrimonio_total:   perfil.patrimonio_total,
-        reserva_emergencia: perfil.reserva_emergencia,
-        reserva_necessaria: perfil.reserva_necessaria,
+        objetivo_principal: perfil.objetivo_principal ?? "",
+        renda_mensal:       perfil.renda_mensal ?? 0,
+        patrimonio_total:   perfil.patrimonio_total ?? 0,
+        reserva_emergencia: perfil.reserva_emergencia ?? 0,
+        reserva_necessaria: perfil.reserva_necessaria ?? 15000,
       });
       showToast("Perfil salvo com sucesso!", "success");
     } catch {
@@ -140,17 +143,18 @@ export function ProfilePage() {
   }
 
   async function handleSaveMeta() {
-    if (!perfil) return;
     try {
       if (editingMeta) {
-        await updateMeta(editingMeta.id, metaForm as never);
-        setPerfil(p => p ? {
-          ...p,
-          metas: p.metas.map(m => m.id === editingMeta.id ? { ...m, ...metaForm,
-            valor_necessario: Number(metaForm.valor_necessario),
-            valor_atual: Number(metaForm.valor_atual),
-          } : m),
-        } : p);
+        await updateMeta(editingMeta.id, {
+          titulo:           metaForm.titulo,
+          valor_necessario: Number(metaForm.valor_necessario),
+          valor_atual:      Number(metaForm.valor_atual),
+          prazo:            metaForm.prazo,
+        });
+        setMetas(ms => ms.map(m => m.id === editingMeta.id
+          ? { ...m, ...metaForm, valor_necessario: Number(metaForm.valor_necessario), valor_atual: Number(metaForm.valor_atual) }
+          : m
+        ));
         showToast("Meta atualizada!", "success");
       } else {
         const id = await createMeta({
@@ -159,14 +163,14 @@ export function ProfilePage() {
           valor_atual:      Number(metaForm.valor_atual),
           prazo:            metaForm.prazo,
         });
-        setPerfil(p => p ? {
-          ...p,
-          metas: [...p.metas, { id, ...metaForm,
-            valor_necessario: Number(metaForm.valor_necessario),
-            valor_atual: Number(metaForm.valor_atual),
-            status: "em_andamento",
-          }],
-        } : p);
+        setMetas(ms => [...ms, {
+          id,
+          titulo:           metaForm.titulo,
+          valor_necessario: Number(metaForm.valor_necessario),
+          valor_atual:      Number(metaForm.valor_atual),
+          prazo:            metaForm.prazo,
+          status:           "em_andamento",
+        }]);
         showToast("Meta criada!", "success");
       }
       setEditingMeta(null);
@@ -180,7 +184,7 @@ export function ProfilePage() {
   async function handleDeleteMeta(id: number) {
     try {
       await deleteMeta(id);
-      setPerfil(p => p ? { ...p, metas: p.metas.filter(m => m.id !== id) } : p);
+      setMetas(ms => ms.filter(m => m.id !== id));
       showToast("Meta removida!", "success");
     } catch {
       showToast("Erro ao remover meta", "error");
@@ -194,7 +198,7 @@ export function ProfilePage() {
       titulo:           meta.titulo,
       valor_necessario: String(meta.valor_necessario),
       valor_atual:      String(meta.valor_atual),
-      prazo:            meta.prazo,
+      prazo:            meta.prazo ?? "",
     });
   }
 
@@ -225,7 +229,6 @@ export function ProfilePage() {
     <div style={{ background: "var(--bg-base)", minHeight: "100%" }}
       className="overflow-y-auto scrollbar-thin">
 
-      {/* Grid de fundo */}
       <div className="pointer-events-none fixed inset-0 z-0" style={{
         backgroundImage: "linear-gradient(rgba(34,211,238,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.02) 1px,transparent 1px)",
         backgroundSize: "40px 40px",
@@ -244,34 +247,25 @@ export function ProfilePage() {
               Edite suas informações pessoais e metas financeiras
             </p>
           </div>
-          <motion.button
-            onClick={handleSavePerfil}
-            disabled={saving}
-            whileTap={{ scale: 0.95 }}
+          <motion.button onClick={handleSavePerfil} disabled={saving} whileTap={{ scale: 0.95 }}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-body text-sm font-medium transition-all"
             style={{
               background: saving ? "var(--bg-elevated)" : "var(--accent)",
               color: saving ? "var(--text-muted)" : "#000",
               boxShadow: saving ? "none" : "0 0 20px var(--accent-glow)",
-            }}
-          >
-            {saving ? (
-              <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
-                ◌
-              </motion.span>
-            ) : "✓"}
-            {saving ? "Salvando..." : "Salvar alterações"}
+            }}>
+            {saving ? "Salvando..." : "✓ Salvar alterações"}
           </motion.button>
         </motion.div>
 
-        {/* Avatar + nome */}
+        {/* Identidade */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
           <Section title="Identidade" accent="#22d3ee">
             <div className="flex items-center gap-4 mb-5">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "var(--accent-glow)", border: "1px solid var(--accent-dim)", boxShadow: "0 0 20px var(--accent-glow)" }}>
+                style={{ background: "var(--accent-glow)", border: "1px solid var(--accent-dim)" }}>
                 <span style={{ color: "var(--accent)" }} className="font-display text-2xl font-bold">
-                  {perfil.nome.split(" ").slice(0, 2).map(n => n[0]).join("")}
+                  {(perfil.nome ?? "?").split(" ").slice(0, 2).map((n: string) => n[0]).join("")}
                 </span>
               </div>
               <div>
@@ -283,11 +277,8 @@ export function ProfilePage() {
               <Field label="Nome completo">
                 <Input value={perfil.nome} onChange={v => setPerfil(p => p ? { ...p, nome: v } : p)} />
               </Field>
-              <Field label="E-mail">
-                <Input value={perfil.email} onChange={v => setPerfil(p => p ? { ...p, email: v } : p)} type="email" />
-              </Field>
               <Field label="Idade">
-                <Input value={perfil.idade} onChange={v => setPerfil(p => p ? { ...p, idade: Number(v) } : p)} type="number" />
+                <Input value={perfil.idade} type="number" onChange={v => setPerfil(p => p ? { ...p, idade: Number(v) } : p)} />
               </Field>
               <Field label="Objetivo principal">
                 <Input value={perfil.objetivo_principal}
@@ -305,27 +296,18 @@ export function ProfilePage() {
               {RISK_OPTIONS.map(opt => {
                 const isActive = perfil.perfil_investidor === opt.value;
                 return (
-                  <motion.button
-                    key={opt.value}
+                  <motion.button key={opt.value}
                     onClick={() => setPerfil(p => p ? { ...p, perfil_investidor: opt.value } : p)}
                     whileTap={{ scale: 0.97 }}
                     className="flex flex-col gap-1.5 p-3 rounded-xl text-left transition-all duration-200"
                     style={{
                       background: isActive ? `${opt.color}15` : "var(--bg-elevated)",
                       border: `1px solid ${isActive ? opt.color + "50" : "var(--border)"}`,
-                      boxShadow: isActive ? `0 0 16px ${opt.color}20` : "none",
-                    }}
-                  >
+                    }}>
                     <span style={{ color: isActive ? opt.color : "var(--text-primary)" }}
-                      className="font-display text-sm font-semibold">
-                      {opt.label}
-                    </span>
-                    <span style={{ color: "var(--text-muted)" }} className="font-body text-[10px] leading-relaxed">
-                      {opt.desc}
-                    </span>
-                    {isActive && (
-                      <span style={{ color: opt.color }} className="font-mono text-[9px]">● ATIVO</span>
-                    )}
+                      className="font-display text-sm font-semibold">{opt.label}</span>
+                    <span style={{ color: "var(--text-muted)" }} className="font-body text-[10px] leading-relaxed">{opt.desc}</span>
+                    {isActive && <span style={{ color: opt.color }} className="font-mono text-[9px]">● ATIVO</span>}
                   </motion.button>
                 );
               })}
@@ -338,31 +320,29 @@ export function ProfilePage() {
           <Section title="Informações financeiras" accent="#34d399">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                { label: "Renda mensal (R$)",       key: "renda_mensal" },
-                { label: "Patrimônio total (R$)",    key: "patrimonio_total" },
-                { label: "Reserva atual (R$)",       key: "reserva_emergencia" },
-                { label: "Reserva necessária (R$)",  key: "reserva_necessaria" },
+                { label: "Renda mensal (R$)",      key: "renda_mensal" },
+                { label: "Patrimônio total (R$)",   key: "patrimonio_total" },
+                { label: "Reserva atual (R$)",      key: "reserva_emergencia" },
+                { label: "Reserva necessária (R$)", key: "reserva_necessaria" },
               ].map(f => (
                 <Field key={f.key} label={f.label}>
-                  <Input
-                    type="number"
+                  <Input type="number"
                     value={(perfil as never)[f.key] as number}
-                    onChange={v => setPerfil(p => p ? { ...p, [f.key]: Number(v) } : p)}
-                  />
+                    onChange={v => setPerfil(p => p ? { ...p, [f.key]: Number(v) } : p)} />
                 </Field>
               ))}
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
               {[
-                { label: "Renda",     value: perfil.renda_mensal,      color: "#34d399" },
-                { label: "Patrimônio",value: perfil.patrimonio_total,   color: "#22d3ee" },
-                { label: "Reserva",   value: perfil.reserva_emergencia, color: "#a78bfa" },
-                { label: "Meta",      value: perfil.reserva_necessaria, color: "#f59e0b" },
+                { label: "Renda",      value: perfil.renda_mensal,      color: "#34d399" },
+                { label: "Patrimônio", value: perfil.patrimonio_total,   color: "#22d3ee" },
+                { label: "Reserva",    value: perfil.reserva_emergencia, color: "#a78bfa" },
+                { label: "Meta",       value: perfil.reserva_necessaria, color: "#f59e0b" },
               ].map(s => (
                 <div key={s.label} style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
                   className="rounded-xl p-3">
                   <p style={{ color: "var(--text-muted)" }} className="font-mono text-[9px] uppercase tracking-widest mb-1">{s.label}</p>
-                  <p style={{ color: s.color }} className="font-display text-base font-bold tracking-tight">{fmt(s.value)}</p>
+                  <p style={{ color: s.color }} className="font-display text-base font-bold">{fmt(s.value)}</p>
                 </div>
               ))}
             </div>
@@ -373,20 +353,17 @@ export function ProfilePage() {
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Section title="Metas financeiras" accent="#f59e0b">
             <div className="flex flex-col gap-3 mb-4">
-              {(perfil.metas ?? []).map((meta, i) => {
-                const pct = Math.min((meta.valor_atual / meta.valor_necessario) * 100, 100);
+              {metas.map((meta, i) => {
+                const pct   = Math.min((meta.valor_atual / meta.valor_necessario) * 100, 100);
                 const colors = ["#22d3ee","#a78bfa","#34d399","#f59e0b"];
                 const color  = colors[i % colors.length];
                 return (
                   <div key={meta.id}
                     style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
-                    className="rounded-xl p-4 group"
-                  >
+                    className="rounded-xl p-4">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex-1 min-w-0">
-                        <p style={{ color: "var(--text-primary)" }} className="font-body text-sm font-medium truncate">
-                          {meta.titulo}
-                        </p>
+                        <p style={{ color: "var(--text-primary)" }} className="font-body text-sm font-medium truncate">{meta.titulo}</p>
                         <p style={{ color: "var(--text-muted)" }} className="font-mono text-[9px] mt-0.5">
                           Prazo: {meta.prazo} · {fmt(meta.valor_atual)} / {fmt(meta.valor_necessario)}
                         </p>
@@ -410,13 +387,10 @@ export function ProfilePage() {
                       </div>
                     </div>
                     <div style={{ background: "var(--bg-base)" }} className="h-1.5 rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${pct}%` }}
+                      <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
                         className="h-full rounded-full"
-                        style={{ background: color, boxShadow: `0 0 8px ${color}55` }}
-                      />
+                        style={{ background: color, boxShadow: `0 0 8px ${color}55` }} />
                     </div>
                   </div>
                 );
@@ -426,13 +400,9 @@ export function ProfilePage() {
             {/* Form de meta */}
             <AnimatePresence>
               {(newMeta || editingMeta) && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
+                <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
                   style={{ background: "var(--bg-elevated)", border: "1px solid var(--accent-dim)" }}
-                  className="rounded-xl p-4 mb-3"
-                >
+                  className="rounded-xl p-4 mb-3">
                   <p style={{ color: "var(--accent)" }} className="font-mono text-[10px] uppercase tracking-widest mb-3">
                     {editingMeta ? "Editar meta" : "Nova meta"}
                   </p>
@@ -452,12 +422,12 @@ export function ProfilePage() {
                   </div>
                   <div className="flex gap-2 mt-3">
                     <button onClick={handleSaveMeta}
-                      className="px-4 py-2 rounded-lg font-body text-sm font-medium transition-all"
+                      className="px-4 py-2 rounded-lg font-body text-sm font-medium"
                       style={{ background: "var(--accent)", color: "#000" }}>
                       Salvar
                     </button>
                     <button onClick={() => { setNewMeta(false); setEditingMeta(null); }}
-                      className="px-4 py-2 rounded-lg font-body text-sm transition-all"
+                      className="px-4 py-2 rounded-lg font-body text-sm"
                       style={{ background: "var(--bg-hover)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
                       Cancelar
                     </button>
@@ -468,8 +438,7 @@ export function ProfilePage() {
 
             <button onClick={openNewMeta}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-body text-sm transition-all w-full justify-center"
-              style={{ background: "var(--bg-elevated)", border: "1px dashed var(--border)", color: "var(--text-muted)" }}
-            >
+              style={{ background: "var(--bg-elevated)", border: "1px dashed var(--border)", color: "var(--text-muted)" }}>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
@@ -479,7 +448,6 @@ export function ProfilePage() {
         </motion.div>
       </div>
 
-      {/* Toast */}
       <AnimatePresence>
         {toast && <Toast msg={toast.msg} type={toast.type} />}
       </AnimatePresence>
