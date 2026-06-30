@@ -4,7 +4,6 @@ from data.loader import carregar_dados
 
 # Carrega os dados uma única vez ao iniciar (evita reler arquivos a cada request)
 _perfil, _transacoes, _historico_csv, _produtos = carregar_dados()
-_contexto = montar_contexto(_perfil, _transacoes, _historico_csv, _produtos)
 
 
 def responder_com_historico(mensagem: str, historico: list[dict]) -> str:
