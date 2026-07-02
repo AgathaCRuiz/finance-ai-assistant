@@ -8,6 +8,7 @@ import { ChatWindow } from "@/components/chat/chatwindow";
 import { DashboardPage } from "@/pages/dashboardpage";
 import { ProfilePage } from "@/pages/profilepage";
 import { UploadPage } from "@/pages/UploadPage";
+import { TransacoesPage } from "@/pages/Transacoespage";
 import { useInvestorProfile } from "@/hooks/useinvestorprofile";
 import { useChatStore } from "@/store/chatStore";
 
@@ -25,7 +26,8 @@ export function AppShell() {
   const location = useLocation();
   const isDash    = location.pathname === "/app/dashboard";
   const isProfile = location.pathname === "/app/perfil";
-  const isUpload  = location.pathname === "/app/upload";
+  const isUpload      = location.pathname === "/app/upload";
+  const isTransacoes  = location.pathname === "/app/transacoes";
 
   const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -82,6 +84,7 @@ export function AppShell() {
   function toggleDashboard() { navigate(isDash ? "/app" : "/app/dashboard"); }
   function toggleProfile()   { navigate(isProfile ? "/app" : "/app/perfil"); }
   function goUpload()        { navigate("/app/upload"); }
+  function goTransacoes()    { navigate("/app/transacoes"); }
 
   return (
     <div
@@ -126,9 +129,11 @@ export function AppShell() {
                   onDashboard={toggleDashboard}
                   onProfile={toggleProfile}
                   onUpload={goUpload}
+                  onTransacoes={goTransacoes}
                   isDashboard={isDash}
                   isProfile={isProfile}
                   isUpload={isUpload}
+                  isTransacoes={isTransacoes}
                   width={sidebarWidth}
                 />
               </div>
@@ -183,12 +188,13 @@ export function AppShell() {
           mobileDrawerOpen={mobileDrawerOpen}
           onToggleMobileDrawer={() => setMobileDrawerOpen(prev => !prev)}
         />
-        <main className={`flex-1 min-h-0 ${isDash || isProfile || isUpload ? "overflow-y-auto scrollbar-thin" : "overflow-hidden"}`}>
+        <main className={`flex-1 min-h-0 ${isDash || isProfile || isUpload || isTransacoes ? "overflow-y-auto scrollbar-thin" : "overflow-hidden"}`}>
           <Routes>
             <Route path="/"          element={<ChatWindow investorName={data?.perfil.nome} />} />
             <Route path="dashboard"  element={<DashboardPage />} />
             <Route path="perfil"     element={<ProfilePage />} />
             <Route path="upload"     element={<UploadPage />} />
+            <Route path="transacoes" element={<TransacoesPage />} />
           </Routes>
         </main>
       </div>

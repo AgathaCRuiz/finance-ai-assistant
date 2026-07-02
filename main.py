@@ -306,12 +306,8 @@ async def chat(req: MensagemRequest, user: dict = Depends(get_current_user)):
         .execute()
     historico = [{"role": m["role"], "content": m["content"]} for m in (msgs_res.data or [])]
 
-    # Monta contexto com dados reais do usuário autenticado
-    from agent.context import montar_contexto
-    contexto = montar_contexto(uid, supabase)
-
-    from agent.llm import perguntar
-    resposta = perguntar(req.mensagem, contexto, historico)
+    from services.chat_service import responder_com_historico
+    resposta = responder_com_historico(req.mensagem, historico, uid, supabase)
 
     # Salva mensagens
     supabase.table("mensagens_chat").insert([
@@ -345,11 +341,8 @@ async def chat_stream(
         .execute()
     historico = [{"role": m["role"], "content": m["content"]} for m in (msgs_res.data or [])]
 
-    from agent.context import montar_contexto
-    contexto = montar_contexto(uid, supabase)
-
-    from agent.llm import perguntar
-    resposta = perguntar(mensagem, contexto, historico)
+    from services.chat_service import responder_com_historico
+    resposta = responder_com_historico(mensagem, historico, uid, supabase)
 
     supabase.table("mensagens_chat").insert([
         {"sessao_id": sid, "role": "user",      "content": mensagem},
@@ -373,6 +366,88 @@ async def delete_session(session_id: str, user: dict = Depends(get_current_user)
         .eq("id", session_id).eq("user_id", _uid(user)).execute()
     return {"ok": True}
 
+
+
+# ── GET /transacoes ───────────────────────────────────────────
+@app.get("/transacoes")
+async def get_transacoes(
+    periodo: str = "1m",
+    categoria: str = "",
+    tipo: str = "",
+    busca: str = "",
+    page: int = 1,
+    limit: int = 30,
+    user: dict = Depends(get_current_user),
+):
+    uid = _uid(user)
+
+    meses_map = {"1m": 1, "3m": 3, "6m": 6, "12m": 12}
+    n_meses   = meses_map.get(periodo, 1)
+    inicio    = (datetime.now() - timedelta(days=n_meses * 30)).isoformat()
+
+    query = supabase.table("transacoes") \
+        .select("*") \
+        .eq("user_id", uid) \
+        .gte("data", inicio) \
+        .order("data", desc=True)
+
+    if categoria:
+        query = query.eq("categoria", categoria)
+    if tipo:
+        query = query.eq("tipo", tipo)
+
+    res = query.execute()
+    todas = res.data or []
+
+    # Filtro de busca local (Supabase free não tem full-text search fácil)
+    if busca:
+        busca_lower = busca.lower()
+        todas = [t for t in todas if busca_lower in t.get("descricao", "").lower()]
+
+    total = len(todas)
+    offset = (page - 1) * limit
+    paginadas = todas[offset:offset + limit]
+
+    # Resumo
+    entradas = sum(t["valor"] for t in todas if t["tipo"] == "entrada")
+    saidas   = sum(t["valor"] for t in todas if t["tipo"] == "saida")
+
+    from collections import defaultdict
+    por_categoria: dict[str, float] = defaultdict(float)
+    for t in todas:
+        if t["tipo"] == "saida":
+            por_categoria[t.get("categoria", "outros")] += t["valor"]
+
+    return {
+        "transacoes": paginadas,
+        "total":      total,
+        "pagina":     page,
+        "paginas":    (total + limit - 1) // limit,
+        "resumo": {
+            "entradas":     round(entradas, 2),
+            "saidas":       round(saidas, 2),
+            "saldo":        round(entradas - saidas, 2),
+            "por_categoria": dict(sorted(por_categoria.items(), key=lambda x: -x[1])),
+        },
+    }
+
+
+# ── PATCH /transacoes/{id}/categoria ─────────────────────────
+class CategoriaUpdate(BaseModel):
+    categoria: str
+
+@app.patch("/transacoes/{trans_id}/categoria")
+async def update_categoria(
+    trans_id: int,
+    body: CategoriaUpdate,
+    user: dict = Depends(get_current_user),
+):
+    supabase.table("transacoes") \
+        .update({"categoria": body.categoria}) \
+        .eq("id", trans_id) \
+        .eq("user_id", _uid(user)) \
+        .execute()
+    return {"ok": True}
 
 @app.get("/")
 async def root():
