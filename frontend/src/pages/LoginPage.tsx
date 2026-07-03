@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuthStore } from "@/store/authStore";
 
 type Mode = "login" | "signup";
@@ -18,6 +18,8 @@ function GoogleIcon() {
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sessionExpired = searchParams.get("expired") === "true";
   const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuthStore();
 
   const [mode, setMode]         = useState<Mode>("login");
@@ -104,6 +106,17 @@ export function LoginPage() {
           <p style={{ color: "rgba(160,180,200,0.6)", fontSize: 14, marginTop: 4 }}>
             {mode === "login" ? "Entre para acessar suas finanças" : "Comece a organizar suas finanças"}
           </p>
+          {sessionExpired && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+              className="mt-4 flex items-center gap-2 px-4 py-3 rounded-xl w-full"
+              style={{ background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.3)" }}>
+              <span style={{ fontSize: 16 }}>⏱</span>
+              <p style={{ color: "#fbbf24", fontSize: 13 }}>
+                Sua sessão expirou. Faça login novamente.
+              </p>
+            </motion.div>
+          )}
         </div>
 
         {/* Card */}

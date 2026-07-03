@@ -6,16 +6,10 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
 
-  // Debug — remova após confirmar que funciona
-  console.log("[apiFetch] path:", path);
-  console.log("[apiFetch] token:", token ? token.substring(0, 40) + "..." : "NENHUM TOKEN");
-
   const headers = new Headers(init.headers);
 
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
-  } else {
-    console.warn("[apiFetch] Sem token! Sessão:", session);
   }
 
   if (
@@ -28,14 +22,20 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
 
   const res = await fetch(`${BASE_URL}${path}`, { ...init, headers });
 
-  if (res.status === 401 && token) {
-    console.warn("[apiFetch] 401 recebido, tentando refresh do token...");
-    const { data: { session: refreshed } } = await supabase.auth.refreshSession();
-    if (refreshed?.access_token) {
-      console.log("[apiFetch] Token refreshed, repetindo requisição...");
-      headers.set("Authorization", `Bearer ${refreshed.access_token}`);
-      return fetch(`${BASE_URL}${path}`, { ...init, headers });
+  // Token expirado — tenta refresh uma vez
+  if (res.status === 401) {
+    const { data: { session: refreshed }, error } = await supabase.auth.refreshSession();
+
+    // Refresh falhou — sessão expirada definitivamente, redireciona para login
+    if (error || !refreshed?.access_token) {
+      await supabase.auth.signOut();
+      window.location.href = "/login?expired=true";
+      return res;
     }
+
+    // Retry com novo token
+    headers.set("Authorization", `Bearer ${refreshed.access_token}`);
+    return fetch(`${BASE_URL}${path}`, { ...init, headers });
   }
 
   return res;

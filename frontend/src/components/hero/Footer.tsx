@@ -5,7 +5,7 @@ export function Footer() {
         <div className="flex items-center gap-2">
           <div
             className="w-5 h-5 rounded flex items-center justify-center"
-            style={{ background: "#22d3ee" }}
+            style={{ background: "#00f5d4" }}
           >
             <span style={{ color: "#000", fontWeight: 700, fontSize: 9 }}>E</span>
           </div>

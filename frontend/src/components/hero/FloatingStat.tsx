@@ -7,12 +7,12 @@ function FloatingStat({ value, label, delay = 0 }: { value: string; label: strin
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
-      className="flex flex-col items-center gap-1"
+      className="flex flex-col items-center gap-0.5"
     >
-      <span style={{ color: "#22d3ee", fontSize: 36, fontWeight: 700, letterSpacing: "-0.03em", fontFamily: "system-ui" }}>
+      <span style={{ color: "rgba(248, 250, 252, 0.9)", fontSize: 20, fontWeight: 300, letterSpacing: "-0.01em", fontFamily: "var(--font-display)" }}>
         {value}
       </span>
-      <span style={{ color: "rgba(160,180,200,0.6)", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+      <span style={{ color: "rgba(148, 163, 184, 0.5)", fontSize: 9, letterSpacing: "0.06em", textTransform: "uppercase" }}>
         {label}
       </span>
     </motion.div>

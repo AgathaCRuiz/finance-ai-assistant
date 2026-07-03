@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import DashboardPreview from "@/components/hero/DashboardPreview";
 import {
   PatrimonyChartPreview,
   AllocationDonutPreview,
@@ -30,7 +29,7 @@ function Particles() {
           style={{
             left: p.left, bottom: 0,
             width: p.size, height: p.size,
-            background: `rgba(34,211,238,${p.opacity})`,
+            background: `rgba(0,245,212,${p.opacity})`,
           }}
           animate={{ y: [-120, 0], opacity: [0, p.opacity * 1.5, 0] }}
           transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: "linear" }}
@@ -62,7 +61,7 @@ function ScanShimmer({ trigger }: { trigger: boolean }) {
           transition={{ duration: 0.55, ease: "easeInOut" }}
           style={{
             background:
-              "linear-gradient(180deg,transparent 0%,rgba(34,211,238,0.07) 50%,transparent 100%)",
+              "linear-gradient(180deg,transparent 0%,rgba(0,245,212,0.07) 50%,transparent 100%)",
           }}
         />
       )}
@@ -79,14 +78,14 @@ function AnimatedDivider() {
     <div ref={ref} className="my-16 flex items-center gap-4">
       <motion.div
         className="h-px flex-1"
-        style={{ background: "linear-gradient(90deg,transparent,rgba(34,211,238,0.15))" }}
+        style={{ background: "linear-gradient(90deg,transparent,rgba(255,255,255,0.06))" }}
         initial={{ scaleX: 0, transformOrigin: "left center" }}
         animate={inView ? { scaleX: 1 } : {}}
         transition={{ duration: 0.8, ease: "easeOut" }}
       />
       <motion.p
         style={{
-          color: "rgba(34,211,238,0.4)", fontSize: 9,
+          color: "rgba(148, 163, 184, 0.5)", fontSize: 9,
           letterSpacing: "0.14em", textTransform: "uppercase",
         }}
         className="font-mono"
@@ -98,7 +97,7 @@ function AnimatedDivider() {
       </motion.p>
       <motion.div
         className="h-px flex-1"
-        style={{ background: "linear-gradient(90deg,rgba(34,211,238,0.15),transparent)" }}
+        style={{ background: "linear-gradient(90deg,rgba(255,255,255,0.06),transparent)" }}
         initial={{ scaleX: 0, transformOrigin: "right center" }}
         animate={inView ? { scaleX: 1 } : {}}
         transition={{ duration: 0.8, ease: "easeOut" }}
@@ -118,7 +117,7 @@ function AnimatedHeading() {
     <div ref={ref} className="mb-16 text-center">
       <motion.p
         style={{
-          color: "#22d3ee", fontSize: 12,
+          color: "rgba(148, 163, 184, 0.55)", fontSize: 11,
           letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 12,
         }}
         initial={{ opacity: 0, y: 8 }}
@@ -140,9 +139,9 @@ function AnimatedHeading() {
             <motion.span
               key={word}
               style={isLast ? {
-                color: "#22d3ee",
+                color: "#00f5d4",
                 textShadow:
-                  "0 0 30px rgba(34,211,238,0.45), 0 0 60px rgba(34,211,238,0.2)",
+                  "0 0 30px rgba(0,245,212,0.45), 0 0 60px rgba(0,245,212,0.2)",
               } : { color: "#f0f4f8" }}
               initial={{ opacity: 0, y: 20, filter: "blur(6px)" }}
               animate={inView ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
@@ -165,7 +164,7 @@ function AnimatedBrowserMock() {
   return (
     <motion.div
       ref={ref}
-      className="relative overflow-hidden"
+      className="relative overflow-visible"
       initial={{ opacity: 0, y: 50, scale: 0.97 }}
       animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
       transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
@@ -178,12 +177,11 @@ function AnimatedBrowserMock() {
         transition={{ delay: 0.5, duration: 1.2 }}
         style={{
           background:
-            "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(34,211,238,0.08), transparent)",
+            "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,245,212,0.08), transparent)",
           filter: "blur(20px)",
         }}
       />
       <ScanShimmer trigger={inView} />
-      <DashboardPreview />
     </motion.div>
   );
 }
@@ -211,7 +209,7 @@ function AnimatedPatrimonyCard() {
 function AnimatedMiniCard({
   children,
   delay = 0,
-  glowColor = "rgba(34,211,238,0.06)",
+  glowColor = "rgba(0,245,212,0.06)",
 }: {
   children: React.ReactNode;
   delay?: number;
@@ -259,14 +257,14 @@ export function DashboardSection() {
         className="pointer-events-none absolute inset-x-0 top-0 h-px"
         style={{
           background:
-            "linear-gradient(90deg,transparent,rgba(34,211,238,0.15),transparent)",
+            "linear-gradient(90deg,transparent,rgba(0,245,212,0.15),transparent)",
         }}
       />
       <div
         className="pointer-events-none absolute left-1/2 top-32 h-[500px] w-[500px] -translate-x-1/2"
         style={{
           background:
-            "radial-gradient(circle,rgba(34,211,238,0.04),transparent 70%)",
+            "radial-gradient(circle,rgba(0,245,212,0.04),transparent 70%)",
           filter: "blur(50px)",
         }}
       />
@@ -287,15 +285,15 @@ export function DashboardSection() {
 
         {/* ── 3-col grid staggered ─────────────────────────────── */}
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
-          <AnimatedMiniCard delay={0}    glowColor="rgba(167,139,250,0.09)">
+          <AnimatedMiniCard delay={0}    glowColor="rgba(0,245,212,0.09)">
             <AllocationDonutPreview />
           </AnimatedMiniCard>
 
-          <AnimatedMiniCard delay={0.12} glowColor="rgba(34,211,238,0.07)">
+          <AnimatedMiniCard delay={0.12} glowColor="rgba(0,229,255,0.07)">
             <SpendingChartPreview />
           </AnimatedMiniCard>
 
-          <AnimatedMiniCard delay={0.24} glowColor="rgba(245,158,11,0.07)">
+          <AnimatedMiniCard delay={0.24} glowColor="rgba(0,245,212,0.07)">
             <InsightsPanelPreview />
           </AnimatedMiniCard>
         </div>

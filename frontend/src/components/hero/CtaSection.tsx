@@ -1,22 +1,16 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Orbs from "@/components/hero/Orbs";
-import GridBackground from "@/components/hero/GridBackground";
-import Particles from "@/components/hero/Particles";
 
 export function CTASection() {
   const navigate = useNavigate();
 
   return (
-    <section id="sobre" className="relative px-6 py-32 text-center overflow-hidden">
+    <section id="sobre" className="relative px-6 py-32 text-center overflow-hidden bg-[#020408]">
 
       {/* Background layers — mesma ordem da Hero */}
-      <div className="absolute inset-0 z-[1]">
-        <GridBackground />
-      </div>
-      <div className="absolute inset-0 z-[2]">
-        <Particles />
-      </div>
+      <div className="absolute inset-0 bg-[#020408] z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,245,212,0.04),transparent_65%)] pointer-events-none z-[1]" />
       <div className="absolute inset-0 z-[3]">
         <Orbs />
       </div>
@@ -57,7 +51,7 @@ export function CTASection() {
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           style={{
-            background: "#22d3ee",
+            background: "#00f5d4",
             color: "#000",
             fontWeight: 700,
             fontSize: 18,
@@ -65,7 +59,7 @@ export function CTASection() {
             borderRadius: 16,
             padding: "18px 48px",
             cursor: "pointer",
-            boxShadow: "0 0 60px rgba(34,211,238,0.4), 0 16px 40px rgba(0,0,0,0.4)",
+            boxShadow: "0 0 60px rgba(0,245,212,0.4), 0 16px 40px rgba(0,0,0,0.4)",
           }}
         >
           Acessar o Edu Finance →

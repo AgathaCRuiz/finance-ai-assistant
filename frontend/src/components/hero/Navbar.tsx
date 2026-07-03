@@ -29,140 +29,71 @@ export function Navbar() {
       initial={{ opacity: 0, y: -24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      style={{
-          position: "fixed",
-          top: 16,
-          left: 24,
-          right: 24,
-          maxWidth: 1100,
-          margin: "0 auto",
-        transform: "translateX(-50%)",
-        width: "calc(100% - 48px)",
-        zIndex: 50,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "10px 20px",
-        borderRadius: 16,
-        background: scrolled
-        ? "rgba(7, 9, 13, 0.45)"
-        : "rgba(7, 9, 13, 0.2)",
-      backdropFilter: "blur(8px)",
-      WebkitBackdropFilter: "blur(8px)",
-        border: "1px solid rgba(34, 211, 238, 0.08)",
-        boxShadow: scrolled
-          ? "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)"
-          : "0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.04)",
-        transition: "background 0.3s ease, box-shadow 0.3s ease",
-      }}
+      className={`fixed top-4 left-4 right-4 max-w-5xl mx-auto z-50 flex items-center justify-between p-2.5 rounded-2xl border transition-all duration-300 ${
+        scrolled
+          ? "bg-[#020408]/65 backdrop-blur-md border-white/[0.06] shadow-[0_12px_40px_rgba(0,0,0,0.6)]"
+          : "bg-[#020408]/25 backdrop-blur-sm border-white/[0.02] shadow-lg"
+      }`}
     >
       {/* Logo */}
-      <motion.button
+      <button
         onClick={() => scrollToSection("hero")}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.97 }}
-        style={{ background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: 10 }}
+        className="flex items-center gap-2 px-1 text-left bg-transparent border-none cursor-pointer focus:outline-none"
       >
         <motion.div
-          whileHover={{ boxShadow: "0 0 24px rgba(34,211,238,0.7)" }}
+          whileHover={{ boxShadow: "0 0 24px rgba(0,245,212,0.7)", scale: 1.05 }}
           transition={{ duration: 0.2 }}
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 8,
-            background: "linear-gradient(135deg, #22d3ee, #06b6d4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 0 16px rgba(34,211,238,0.4)",
-          }}
+          className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#00f5d4] to-[#00E5FF] flex items-center justify-center shadow-[0_0_12px_rgba(0,245,212,0.4)]"
         >
-          <span style={{ color: "#000", fontWeight: 800, fontSize: 13 }}>E</span>
+          <span className="text-black font-extrabold text-xs">E</span>
         </motion.div>
-        <span style={{ color: "#f0f4f8", fontWeight: 600, fontSize: 15, letterSpacing: "-0.02em" }}>
+        <span className="text-white font-semibold text-sm md:text-base tracking-tight">
           Edu Finance
         </span>
-      </motion.button>
+      </button>
 
-      {/* Links */}
-      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+      {/* Links - Hidden on mobile, shown on md+ screens */}
+      <div className="hidden md:flex items-center gap-1.5">
         {NAV_LINKS.map(({ label, href }) => (
-          <motion.button
+          <button
             key={href}
             onClick={() => { scrollToSection(href); setActiveLink(href); }}
-            onHoverStart={() => setActiveLink(href)}
-            onHoverEnd={() => setActiveLink(null)}
-            style={{
-              position: "relative",
-              color: activeLink === href ? "#f0f4f8" : "rgba(160,180,200,0.55)",
-              fontSize: 14,
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: "6px 14px",
-              borderRadius: 8,
-              transition: "color 0.2s",
-            }}
+            onMouseEnter={() => setActiveLink(href)}
+            onMouseLeave={() => setActiveLink(null)}
+            className={`relative px-4 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer border-none bg-transparent ${
+              activeLink === href ? "text-white" : "text-zinc-400 hover:text-white"
+            }`}
           >
-            {/* Highlight de fundo no hover */}
             {activeLink === href && (
               <motion.span
                 layoutId="nav-highlight"
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  borderRadius: 8,
-                  background: "rgba(34,211,238,0.07)",
-                  border: "1px solid rgba(34,211,238,0.12)",
-                }}
+                className="absolute inset-0 rounded-lg bg-[#00f5d4]/5 border border-[#00f5d4]/10"
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
               />
             )}
-            <span style={{ position: "relative", zIndex: 1 }}>{label}</span>
-          </motion.button>
+            <span className="relative z-10">{label}</span>
+          </button>
         ))}
       </div>
 
-      {/* Ações */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <motion.button
+      {/* Actions */}
+      <div className="flex items-center gap-1.5">
+        <button
           onClick={() => navigate("/app")}
-          whileHover={{ color: "#f0f4f8" }}
-          whileTap={{ scale: 0.96 }}
-          style={{
-            color: "rgba(160,180,200,0.6)",
-            fontSize: 14,
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            padding: "7px 16px",
-            borderRadius: 8,
-            transition: "color 0.2s",
-          }}
+          className="text-zinc-400 hover:text-white text-xs md:text-sm bg-transparent border-none cursor-pointer py-1.5 px-3 rounded-lg transition-colors focus:outline-none"
         >
           Entrar
-        </motion.button>
+        </button>
 
         <motion.button
           onClick={() => navigate("/app")}
           whileHover={{
-            scale: 1.04,
-            boxShadow: "0 0 28px rgba(34,211,238,0.55)",
+            scale: 1.03,
+            boxShadow: "0 0 28px rgba(0,245,212,0.55)",
           }}
-          whileTap={{ scale: 0.96 }}
+          whileTap={{ scale: 0.97 }}
           transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          style={{
-            background: "linear-gradient(135deg, #22d3ee, #06b6d4)",
-            color: "#000",
-            fontWeight: 700,
-            fontSize: 14,
-            border: "none",
-            borderRadius: 10,
-            padding: "8px 20px",
-            cursor: "pointer",
-            boxShadow: "0 0 20px rgba(34,211,238,0.3)",
-            letterSpacing: "-0.01em",
-          }}
+          className="bg-gradient-to-tr from-[#00f5d4] to-[#00E5FF] text-black font-bold text-xs md:text-sm border-none rounded-xl py-2 px-4 md:px-5 cursor-pointer shadow-[0_0_16px_rgba(0,245,212,0.3)] transition-all focus:outline-none"
         >
           Começar grátis
         </motion.button>
